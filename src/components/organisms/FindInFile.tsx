@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { startTransition, useCallback, useRef, useState } from "react";
 import { useLanguage } from "@/contexts/language-context";
+import { formatBytes, readFileAsText } from "@/lib/read-file-async";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getHighlightSegments, type KeywordHighlight } from "@/lib/highlight";
@@ -32,18 +33,33 @@ export function FindInFile({ className }: FindInFileProps) {
   const { t } = useLanguage();
   const [content, setContent] = useState("");
   const [keywords, setKeywords] = useState<KeywordRow[]>([]);
+  const [loadStatus, setLoadStatus] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const onFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      setContent(String(reader.result ?? ""));
-    };
-    reader.readAsText(file, "UTF-8");
-    e.target.value = "";
-  }, []);
+  const onFileChange = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      e.target.value = "";
+      setLoadStatus(t("common.loading"));
+      try {
+        const result = await readFileAsText(file, "display");
+        startTransition(() => {
+          setContent(result.text);
+          setLoadStatus(
+            result.truncated
+              ? t("common.fileTooLargeTruncated")
+                  .replace("{{total}}", formatBytes(result.totalBytes))
+                  .replace("{{loaded}}", formatBytes(result.loadedBytes))
+              : null
+          );
+        });
+      } catch (err) {
+        setLoadStatus(err instanceof Error ? err.message : "Failed to load");
+      }
+    },
+    [t]
+  );
 
   const addKeyword = useCallback(() => {
     const color = DEFAULT_COLORS[keywords.length % DEFAULT_COLORS.length];
@@ -94,10 +110,16 @@ export function FindInFile({ className }: FindInFileProps) {
           type="button"
           variant="outline"
           size="sm"
-          onClick={() => setContent("")}
+          onClick={() => {
+            setContent("");
+            setLoadStatus(null);
+          }}
         >
           {t("findInFile.clearContent")}
         </Button>
+        {loadStatus && (
+          <span className="text-xs text-muted-foreground">{loadStatus}</span>
+        )}
       </div>
 
       <p className="text-sm text-muted-foreground">

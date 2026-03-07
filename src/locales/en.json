@@ -21,6 +21,9 @@
     "fontConverter": "Font Converter"
   },
   "common": {
+    "loading": "Loading...",
+    "fileTooLargeTruncated": "File is large ({{total}}). Only first {{loaded}} loaded for performance.",
+    "fileExceedsMax": "File exceeds max size ({{max}}). Use a smaller file.",
     "language": "Language",
     "theme": "Theme",
     "dark": "Dark",

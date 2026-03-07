@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { startTransition, useCallback, useRef, useState } from "react";
 import { useLanguage } from "@/contexts/language-context";
+import { formatBytes, readFileAsText } from "@/lib/read-file-async";
 import { Button } from "@/components/ui/button";
 import {
   computeHash,
@@ -16,6 +17,7 @@ export function HashGenerator() {
   const [algorithmId, setAlgorithmId] = useState<HashAlgorithmId>("sha256");
   const [hmacKey, setHmacKey] = useState("");
   const [result, setResult] = useState<{ hex: string } | null>(null);
+  const [loadStatus, setLoadStatus] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleGenerate = useCallback(() => {
@@ -25,19 +27,29 @@ export function HashGenerator() {
   }, [input, algorithmId, hmacKey]);
 
   const handleLoadFile = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        const text = reader.result as string;
-        setInput(text);
-        setResult(null);
-      };
-      reader.readAsText(file);
       e.target.value = "";
+      setLoadStatus(t("common.loading"));
+      try {
+        const res = await readFileAsText(file, "hash");
+        startTransition(() => {
+          setInput(res.text);
+          setResult(null);
+          setLoadStatus(
+            res.truncated
+              ? t("common.fileTooLargeTruncated")
+                  .replace("{{total}}", formatBytes(res.totalBytes))
+                  .replace("{{loaded}}", formatBytes(res.loadedBytes))
+              : null
+          );
+        });
+      } catch (err) {
+        setLoadStatus(err instanceof Error ? err.message : "Failed to load");
+      }
     },
-    []
+    [t]
   );
 
   const handleCopy = useCallback(async () => {
@@ -49,6 +61,7 @@ export function HashGenerator() {
     setInput("");
     setHmacKey("");
     setResult(null);
+    setLoadStatus(null);
   }, []);
 
   return (
@@ -86,6 +99,9 @@ export function HashGenerator() {
           <Button type="button" variant="outline" size="sm" onClick={handleClear}>
             {t("hashGen.clear")}
           </Button>
+          {loadStatus && (
+            <span className="text-xs text-muted-foreground">{loadStatus}</span>
+          )}
         </div>
       </div>
 

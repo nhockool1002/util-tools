@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { startTransition, useCallback, useMemo, useRef, useState } from "react";
 import { useLanguage } from "@/contexts/language-context";
 import { Button } from "@/components/ui/button";
 import { compareLines, type DiffLine } from "@/lib/compare-text";
+import { formatBytes, readFileAsText } from "@/lib/read-file-async";
 import { cn } from "@/lib/utils";
 import { ArrowLeftRight, Copy, FileDown, FileUp, Trash2 } from "lucide-react";
 
@@ -66,6 +67,8 @@ export function CompareFile() {
   const { t } = useLanguage();
   const [leftText, setLeftText] = useState("");
   const [rightText, setRightText] = useState("");
+  const [leftLoadStatus, setLeftLoadStatus] = useState<string | null>(null);
+  const [rightLoadStatus, setRightLoadStatus] = useState<string | null>(null);
   const [ignoreWhitespace, setIgnoreWhitespace] = useState(false);
   const [ignoreCase, setIgnoreCase] = useState(false);
   const [showLineNumbers, setShowLineNumbers] = useState(true);
@@ -94,24 +97,37 @@ export function CompareFile() {
   );
 
   const onFileChange = useCallback(
-    (side: "left" | "right", e: React.ChangeEvent<HTMLInputElement>) => {
+    async (side: "left" | "right", e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        const text = String(reader.result ?? "");
-        if (side === "left") setLeftText(text);
-        else setRightText(text);
-      };
-      reader.readAsText(file, "UTF-8");
       e.target.value = "";
+      const setStatus = side === "left" ? setLeftLoadStatus : setRightLoadStatus;
+      setStatus(t("common.loading"));
+      try {
+        const result = await readFileAsText(file, "display");
+        startTransition(() => {
+          if (side === "left") setLeftText(result.text);
+          else setRightText(result.text);
+          setStatus(
+            result.truncated
+              ? t("common.fileTooLargeTruncated")
+                  .replace("{{total}}", formatBytes(result.totalBytes))
+                  .replace("{{loaded}}", formatBytes(result.loadedBytes))
+              : null
+          );
+        });
+      } catch (err) {
+        setStatus(err instanceof Error ? err.message : "Failed to load");
+      }
     },
-    []
+    [t]
   );
 
   const handleClear = useCallback(() => {
     setLeftText("");
     setRightText("");
+    setLeftLoadStatus(null);
+    setRightLoadStatus(null);
   }, []);
 
   const handleSwap = useCallback(() => {
@@ -226,9 +242,16 @@ ${htmlLines.join("\n")}
     <div className="flex flex-col gap-4">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium text-foreground">
-            {t("compareFile.left")}
-          </label>
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium text-foreground">
+              {t("compareFile.left")}
+            </label>
+            {leftLoadStatus && (
+              <span className="text-xs text-muted-foreground">
+                {leftLoadStatus}
+              </span>
+            )}
+          </div>
           <textarea
             value={leftText}
             onChange={(e) => setLeftText(e.target.value)}
@@ -241,9 +264,16 @@ ${htmlLines.join("\n")}
           />
         </div>
         <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium text-foreground">
-            {t("compareFile.right")}
-          </label>
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium text-foreground">
+              {t("compareFile.right")}
+            </label>
+            {rightLoadStatus && (
+              <span className="text-xs text-muted-foreground">
+                {rightLoadStatus}
+              </span>
+            )}
+          </div>
           <textarea
             value={rightText}
             onChange={(e) => setRightText(e.target.value)}

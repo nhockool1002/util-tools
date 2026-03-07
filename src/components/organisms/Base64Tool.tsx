@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { startTransition, useCallback, useRef, useState } from "react";
 import { useLanguage } from "@/contexts/language-context";
+import { formatBytes, readFileAsText } from "@/lib/read-file-async";
 import { Button } from "@/components/ui/button";
 import { encodeBase64, decodeBase64 } from "@/lib/base64";
 
@@ -13,6 +14,7 @@ export function Base64Tool() {
   const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [loadStatus, setLoadStatus] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleEncode = useCallback(() => {
@@ -33,25 +35,38 @@ export function Base64Tool() {
   }, [input, t]);
 
   const handleLoadFile = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        setInput(reader.result as string);
-        setOutput("");
-        setError(null);
-      };
-      reader.readAsText(file);
       e.target.value = "";
+      setLoadStatus(t("common.loading"));
+      setError(null);
+      try {
+        const result = await readFileAsText(file, "base64");
+        startTransition(() => {
+          setInput(result.text);
+          setOutput("");
+          setLoadStatus(
+            result.truncated
+              ? t("common.fileTooLargeTruncated")
+                  .replace("{{total}}", formatBytes(result.totalBytes))
+                  .replace("{{loaded}}", formatBytes(result.loadedBytes))
+              : null
+          );
+        });
+      } catch (err) {
+        setLoadStatus(null);
+        setError(err instanceof Error ? err.message : "Failed to load");
+      }
     },
-    []
+    [t]
   );
 
   const handleClear = useCallback(() => {
     setInput("");
     setOutput("");
     setError(null);
+    setLoadStatus(null);
   }, []);
 
   const handleCopyOutput = useCallback(async () => {
@@ -127,6 +142,9 @@ export function Base64Tool() {
           >
             {t("base64.loadFile")}
           </Button>
+          {loadStatus && (
+            <span className="text-xs text-muted-foreground">{loadStatus}</span>
+          )}
           <Button type="button" variant="outline" size="sm" onClick={handleClear}>
             {t("base64.clear")}
           </Button>

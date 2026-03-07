@@ -21,6 +21,9 @@
     "fontConverter": "Đổi font"
   },
   "common": {
+    "loading": "Đang tải...",
+    "fileTooLargeTruncated": "File lớn ({{total}}). Chỉ nạp {{loaded}} đầu tiên để tối ưu hiệu năng.",
+    "fileExceedsMax": "File vượt dung lượng tối đa ({{max}}). Vui lòng dùng file nhỏ hơn.",
     "language": "Ngôn ngữ",
     "theme": "Giao diện",
     "dark": "Tối",
