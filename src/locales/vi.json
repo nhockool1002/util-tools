@@ -18,7 +18,30 @@
     "jwtDecoder": "JWT Decoder",
     "qrCode": "QR Code",
     "base64": "Base64 Encode/Decode",
-    "fontConverter": "Đổi font"
+    "fontConverter": "Đổi font",
+    "regexTester": "Regex Tester"
+  },
+  "font": {
+    "default": "Mặc định",
+    "ariaLabel": "Đổi font chữ",
+    "title": "Font chữ"
+  },
+  "zoom": {
+    "ariaLabel": "Cỡ chữ / Zoom",
+    "title": "Cỡ chữ"
+  },
+  "sidebar": {
+    "collapse": "Thu gọn thanh bên",
+    "expand": "Mở rộng thanh bên"
+  },
+  "quickSearch": {
+    "ariaLabel": "Tìm nhanh công cụ",
+    "placeholder": "Tìm công cụ...",
+    "noResults": "Không tìm thấy công cụ.",
+    "navigate": "Di chuyển",
+    "select": "Chọn",
+    "close": "Đóng",
+    "open": "Tìm công cụ (Ctrl+K)"
   },
   "common": {
     "loading": "Đang tải...",
@@ -29,7 +52,8 @@
     "dark": "Tối",
     "light": "Sáng",
     "english": "English",
-    "vietnamese": "Tiếng Việt"
+    "vietnamese": "Tiếng Việt",
+    "clear": "Xóa"
   },
   "home": {
     "welcome": "Chào mừng đến Util Tools",
@@ -235,5 +259,27 @@
     "progressLabel": "Tiến trình chuyển đổi",
     "progressComplete": "Hoàn thành",
     "dropBadge": "Kéo thả file vào đây hoặc nhấn để chọn"
+  },
+  "regex": {
+    "pattern": "Biểu thức regex",
+    "patternPlaceholder": "vd. \\d+, [a-z]+, (\\w+)\\s+(\\d+)",
+    "flags": "Cờ",
+    "testString": "Chuỗi kiểm thử",
+    "testStringPlaceholder": "Dán hoặc nhập văn bản để test với pattern...",
+    "highlightPreview": "Xem trước highlight",
+    "matches": "kết quả",
+    "noTestString": "Nhập chuỗi test ở trên.",
+    "legendFullMatch": "Toàn bộ khớp",
+    "legendGroup": "Nhóm {{n}}",
+    "matchList": "Danh sách kết quả",
+    "index": "Vị trí",
+    "fullMatch": "Khớp đầy đủ",
+    "group": "Nhóm {{n}}",
+    "replace": "Thay thế",
+    "replacePlaceholder": "Chuỗi thay (dùng $1, $2 cho nhóm)",
+    "replaceAll": "Thay tất cả",
+    "copyResult": "Sao chép kết quả",
+    "suggestions": "Gợi ý cú pháp",
+    "loadFile": "Chọn file"
   }
 }

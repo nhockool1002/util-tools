@@ -18,7 +18,30 @@
     "jwtDecoder": "JWT Decoder",
     "qrCode": "QR Code",
     "base64": "Base64 Encode/Decode",
-    "fontConverter": "Font Converter"
+    "fontConverter": "Font Converter",
+    "regexTester": "Regex Tester"
+  },
+  "font": {
+    "default": "Default",
+    "ariaLabel": "Change font",
+    "title": "Font"
+  },
+  "zoom": {
+    "ariaLabel": "Zoom / font size",
+    "title": "Zoom"
+  },
+  "sidebar": {
+    "collapse": "Collapse sidebar",
+    "expand": "Expand sidebar"
+  },
+  "quickSearch": {
+    "ariaLabel": "Quick search tools",
+    "placeholder": "Search tools...",
+    "noResults": "No tools found.",
+    "navigate": "Navigate",
+    "select": "Select",
+    "close": "Close",
+    "open": "Search tools (Ctrl+K)"
   },
   "common": {
     "loading": "Loading...",
@@ -29,7 +52,8 @@
     "dark": "Dark",
     "light": "Light",
     "english": "English",
-    "vietnamese": "Tiếng Việt"
+    "vietnamese": "Tiếng Việt",
+    "clear": "Clear"
   },
   "home": {
     "welcome": "Welcome to Util Tools",
@@ -235,5 +259,27 @@
     "progressLabel": "Conversion progress",
     "progressComplete": "Complete",
     "dropBadge": "Drop files here or click to choose"
+  },
+  "regex": {
+    "pattern": "Regex pattern",
+    "patternPlaceholder": "e.g. \\d+, [a-z]+, (\\w+)\\s+(\\d+)",
+    "flags": "Flags",
+    "testString": "Test string",
+    "testStringPlaceholder": "Paste or type text to test against the pattern...",
+    "highlightPreview": "Highlight preview",
+    "matches": "match(es)",
+    "noTestString": "Enter a test string above.",
+    "legendFullMatch": "Full match",
+    "legendGroup": "Group {{n}}",
+    "matchList": "Match list",
+    "index": "Index",
+    "fullMatch": "Full match",
+    "group": "Group {{n}}",
+    "replace": "Replace",
+    "replacePlaceholder": "Replacement (use $1, $2 for groups)",
+    "replaceAll": "Replace all",
+    "copyResult": "Copy result",
+    "suggestions": "Syntax suggestions",
+    "loadFile": "Load file"
   }
 }

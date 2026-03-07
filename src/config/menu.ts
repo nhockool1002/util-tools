@@ -11,6 +11,7 @@ import {
   QrCode,
   FileText,
   Type,
+  Regex,
 } from "lucide-react";
 
 export type MenuItemId =
@@ -24,7 +25,8 @@ export type MenuItemId =
   | "jwt-decoder"
   | "qr-code"
   | "base64"
-  | "font-converter";
+  | "font-converter"
+  | "regex-tester";
 
 export interface MenuItem {
   id: MenuItemId;
@@ -78,6 +80,7 @@ export const menuCategories: MenuCategory[] = [
         labelKey: "nav.fontConverter",
         icon: Type,
       },
+      { id: "regex-tester", path: "/tools/regex-tester", labelKey: "nav.regexTester", icon: Regex },
     ],
   },
 ];
