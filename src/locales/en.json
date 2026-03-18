@@ -18,6 +18,7 @@
     "jwtDecoder": "JWT Decoder",
     "qrCode": "QR Code",
     "base64": "Base64 Encode/Decode",
+    "convertCase": "Convert Case",
     "fontConverter": "Font Converter",
     "regexTester": "Regex Tester"
   },
@@ -281,5 +282,48 @@
     "copyResult": "Copy result",
     "suggestions": "Syntax suggestions",
     "loadFile": "Load file"
+  }
+  ,
+  "convertCase": {
+    "inputLabel": "Input text",
+    "inputPlaceholder": "Paste or type content here...",
+    "transformLabel": "Transform",
+    "apply": "Apply",
+    "undo": "Undo",
+    "clear": "Clear",
+    "swap": "Swap Input/Output",
+    "outputLabel": "Output",
+    "outputPlaceholder": "Output will appear here...",
+    "copy": "Copy",
+    "tip": "Tip: change transform then click Apply.",
+    "transforms": {
+      "uppercase": "UPPERCASE",
+      "lowercase": "lowercase",
+      "title": "Title Case",
+      "sentence": "Sentence case",
+      "swap": "Swap cAsE",
+      "bold": "Bold text (Unicode)",
+      "italic": "Italic text (Unicode)",
+      "underline": "Underline (Unicode)",
+      "strike": "Strikethrough (strike)",
+      "reverse": "Reverse text",
+      "reverseWords": "Reverse word order",
+      "upsideDown": "Upside-down text",
+      "removeDiacritics": "Remove diacritics",
+      "camel": "camelCase",
+      "pascal": "PascalCase",
+      "snake": "snake_case",
+      "kebab": "kebab-case",
+      "constant": "CONSTANT_CASE",
+      "dot": "dot.case",
+      "space": "Space separated",
+      "trim": "Trim",
+      "normalizeSpaces": "Normalize spaces",
+      "trimLines": "Trim each line",
+      "removeEmptyLines": "Remove empty lines",
+      "sortLinesAsc": "Sort lines A→Z",
+      "sortLinesDesc": "Sort lines Z→A",
+      "uniqueLines": "Unique lines"
+    }
   }
 }

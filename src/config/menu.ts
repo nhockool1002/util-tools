@@ -12,6 +12,7 @@ import {
   FileText,
   Type,
   Regex,
+  CaseSensitive,
 } from "lucide-react";
 
 export type MenuItemId =
@@ -26,7 +27,8 @@ export type MenuItemId =
   | "qr-code"
   | "base64"
   | "font-converter"
-  | "regex-tester";
+  | "regex-tester"
+  | "convert-case";
 
 export interface MenuItem {
   id: MenuItemId;
@@ -74,6 +76,7 @@ export const menuCategories: MenuCategory[] = [
       { id: "jwt-decoder", path: "/tools/jwt-decoder", labelKey: "nav.jwtDecoder", icon: Key },
       { id: "qr-code", path: "/tools/qr-code", labelKey: "nav.qrCode", icon: QrCode },
       { id: "base64", path: "/tools/base64", labelKey: "nav.base64", icon: FileText },
+      { id: "convert-case", path: "/tools/convert-case", labelKey: "nav.convertCase", icon: CaseSensitive },
       {
         id: "font-converter",
         path: "/tools/font-converter",

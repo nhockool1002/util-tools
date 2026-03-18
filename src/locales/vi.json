@@ -18,6 +18,7 @@
     "jwtDecoder": "JWT Decoder",
     "qrCode": "QR Code",
     "base64": "Base64 Encode/Decode",
+    "convertCase": "Convert Case",
     "fontConverter": "Đổi font",
     "regexTester": "Regex Tester"
   },
@@ -281,5 +282,48 @@
     "copyResult": "Sao chép kết quả",
     "suggestions": "Gợi ý cú pháp",
     "loadFile": "Chọn file"
+  }
+  ,
+  "convertCase": {
+    "inputLabel": "Văn bản đầu vào",
+    "inputPlaceholder": "Dán hoặc nhập nội dung tại đây...",
+    "transformLabel": "Biến đổi",
+    "apply": "Chuyển đổi",
+    "undo": "Hoàn tác",
+    "clear": "Xóa",
+    "swap": "Đổi Input/Output",
+    "outputLabel": "Kết quả",
+    "outputPlaceholder": "Kết quả sẽ hiển thị ở đây...",
+    "copy": "Sao chép",
+    "tip": "Mẹo: bạn có thể chọn kiểu khác rồi bấm Chuyển đổi.",
+    "transforms": {
+      "uppercase": "UPPERCASE",
+      "lowercase": "lowercase",
+      "title": "Title Case",
+      "sentence": "Sentence case",
+      "swap": "Swap cAsE",
+      "bold": "Bold text (Unicode)",
+      "italic": "Italic text (Unicode)",
+      "underline": "Gạch chân chữ (underline)",
+      "strike": "Gạch ngang chữ (strike)",
+      "reverse": "Đảo ngược (reverse)",
+      "reverseWords": "Đảo thứ tự từ",
+      "upsideDown": "Lật ngược chữ (upside-down)",
+      "removeDiacritics": "Bỏ dấu (remove diacritics)",
+      "camel": "camelCase",
+      "pascal": "PascalCase",
+      "snake": "snake_case",
+      "kebab": "kebab-case",
+      "constant": "CONSTANT_CASE",
+      "dot": "dot.case",
+      "space": "Space separated",
+      "trim": "Trim (xóa khoảng trắng đầu/cuối)",
+      "normalizeSpaces": "Chuẩn hóa khoảng trắng",
+      "trimLines": "Trim từng dòng",
+      "removeEmptyLines": "Xóa dòng trống",
+      "sortLinesAsc": "Sắp xếp dòng A→Z",
+      "sortLinesDesc": "Sắp xếp dòng Z→A",
+      "uniqueLines": "Loại bỏ dòng trùng"
+    }
   }
 }
