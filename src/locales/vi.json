@@ -20,7 +20,8 @@
     "base64": "Base64 Encode/Decode",
     "convertCase": "Convert Case",
     "fontConverter": "Đổi font",
-    "regexTester": "Regex Tester"
+    "regexTester": "Regex Tester",
+    "colorPalettes": "Bảng màu"
   },
   "font": {
     "default": "Mặc định",
@@ -154,6 +155,9 @@
     "audioMic": "Chỉ micro",
     "audioBoth": "Hệ thống + Micro",
     "audioNone": "Tắt tiếng",
+    "audioNotDetectedTitle": "Không phát hiện được âm thanh",
+    "audioNotDetectedMessage": "Trình duyệt không thể phát hiện thiết bị/âm thanh. Sẽ ghi ở chế độ Tắt tiếng (No Audio).",
+    "audioNotDetectedOk": "Đã hiểu",
     "bitrate": "Bitrate",
     "bitrateLow": "Thấp",
     "bitrateMedium": "Trung bình",
@@ -325,5 +329,12 @@
       "sortLinesDesc": "Sắp xếp dòng Z→A",
       "uniqueLines": "Loại bỏ dòng trùng"
     }
+  },
+  "colorPalettes": {
+    "title": "Bảng màu",
+    "subtitle": "Rê chuột để xem HEX/RGB. Bấm vào ô màu để sao chép HEX.",
+    "copied": "Đã sao chép: {{color}}",
+    "clickToCopy": "Bấm để sao chép HEX",
+    "helpLine": "Mẹo: bấm bất kỳ ô màu nào để copy HEX vào clipboard."
   }
 }

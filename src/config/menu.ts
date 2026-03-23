@@ -13,6 +13,7 @@ import {
   Type,
   Regex,
   CaseSensitive,
+  Palette,
 } from "lucide-react";
 
 export type MenuItemId =
@@ -27,6 +28,7 @@ export type MenuItemId =
   | "qr-code"
   | "base64"
   | "font-converter"
+  | "color-palettes"
   | "regex-tester"
   | "convert-case";
 
@@ -83,6 +85,7 @@ export const menuCategories: MenuCategory[] = [
         labelKey: "nav.fontConverter",
         icon: Type,
       },
+      { id: "color-palettes", path: "/tools/color-palettes", labelKey: "nav.colorPalettes", icon: Palette },
       { id: "regex-tester", path: "/tools/regex-tester", labelKey: "nav.regexTester", icon: Regex },
     ],
   },

@@ -20,7 +20,8 @@
     "base64": "Base64 Encode/Decode",
     "convertCase": "Convert Case",
     "fontConverter": "Font Converter",
-    "regexTester": "Regex Tester"
+    "regexTester": "Regex Tester",
+    "colorPalettes": "Color Palettes"
   },
   "font": {
     "default": "Default",
@@ -154,6 +155,9 @@
     "audioMic": "Microphone only",
     "audioBoth": "System + Microphone",
     "audioNone": "No audio",
+    "audioNotDetectedTitle": "Audio device not detected",
+    "audioNotDetectedMessage": "We couldn't detect an audio device. Recording will continue in No Audio mode.",
+    "audioNotDetectedOk": "OK",
     "bitrate": "Bitrate",
     "bitrateLow": "Low",
     "bitrateMedium": "Medium",
@@ -325,5 +329,12 @@
       "sortLinesDesc": "Sort lines Z→A",
       "uniqueLines": "Unique lines"
     }
+  },
+  "colorPalettes": {
+    "title": "Color Palettes",
+    "subtitle": "Hover to preview HEX/RGB. Click a swatch to copy HEX.",
+    "copied": "Copied: {{color}}",
+    "clickToCopy": "Click to copy HEX",
+    "helpLine": "Tip: Click any square; HEX will be copied to clipboard."
   }
 }

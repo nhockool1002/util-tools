@@ -21,6 +21,35 @@ import {
 
 export type AudioSource = "system" | "mic" | "both" | "none";
 
+const STORAGE_KEY = "screenRecorder.options.v1";
+
+const QUALITY_OPTIONS: QualityPreset[] = ["720p", "1080p"];
+const FORMAT_OPTIONS: FormatPreset[] = ["webm", "mp4"];
+const CURSOR_OPTIONS: CursorPreset[] = ["always", "never"];
+const BITRATE_OPTIONS: BitratePreset[] = ["low", "medium", "high"];
+const AUDIO_OPTIONS: AudioSource[] = ["system", "mic", "both", "none"];
+
+function isRequestedDeviceNotFound(err: unknown): boolean {
+  // Common browser error: DOMException with name="NotFoundError" and message
+  // like "Requested device not found".
+  if (!err) return false;
+
+  const anyErr = err as { name?: unknown; message?: unknown };
+  const name = typeof anyErr.name === "string" ? anyErr.name : undefined;
+  const message = typeof anyErr.message === "string" ? anyErr.message : "";
+
+  if (name === "NotFoundError") return true;
+
+  const msg = message.toLowerCase();
+  return (
+    msg.includes("requested") &&
+    (msg.includes("not found") ||
+      msg.includes("device") ||
+      msg.includes("microphone") ||
+      msg.includes("audio"))
+  );
+}
+
 export interface RecordingHistoryItem {
   id: string;
   url: string;
@@ -56,8 +85,62 @@ export function ScreenRecorder() {
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
   const [downloadFilename, setDownloadFilename] = useState("");
   const [fallbackNotice, setFallbackNotice] = useState(false);
+  const [audioFallbackModalOpen, setAudioFallbackModalOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [history, setHistory] = useState<RecordingHistoryItem[]>([]);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as Partial<{
+        quality: QualityPreset;
+        format: FormatPreset;
+        audioSource: AudioSource;
+        cursor: CursorPreset;
+        highlightClicks: boolean;
+        bitrate: BitratePreset;
+        frameRate: number;
+        countdown: number;
+      }>;
+
+      if (parsed.quality && QUALITY_OPTIONS.includes(parsed.quality)) setQuality(parsed.quality);
+      if (parsed.format && FORMAT_OPTIONS.includes(parsed.format)) setFormat(parsed.format);
+      if (parsed.audioSource && AUDIO_OPTIONS.includes(parsed.audioSource)) setAudioSource(parsed.audioSource);
+      if (parsed.cursor && CURSOR_OPTIONS.includes(parsed.cursor)) setCursor(parsed.cursor);
+      if (typeof parsed.highlightClicks === "boolean") setHighlightClicks(parsed.highlightClicks);
+      if (parsed.bitrate && BITRATE_OPTIONS.includes(parsed.bitrate)) setBitrate(parsed.bitrate);
+      if (typeof parsed.frameRate === "number" && FRAME_RATE_OPTIONS.includes(parsed.frameRate)) setFrameRate(parsed.frameRate);
+      if (
+        typeof parsed.countdown === "number" &&
+        (COUNTDOWN_OPTIONS as readonly number[]).includes(parsed.countdown)
+      ) {
+        setCountdown(parsed.countdown as (typeof COUNTDOWN_OPTIONS)[number]);
+      }
+    } catch {
+      // ignore localStorage read/parse errors
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({
+          quality,
+          format,
+          audioSource,
+          cursor,
+          highlightClicks,
+          bitrate,
+          frameRate,
+          countdown,
+        })
+      );
+    } catch {
+      // ignore localStorage write errors (private mode, quota, etc.)
+    }
+  }, [quality, format, audioSource, cursor, highlightClicks, bitrate, frameRate, countdown]);
 
   const streamRef = useRef<MediaStream | null>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
@@ -72,29 +155,68 @@ export function ScreenRecorder() {
     setError(null);
     setDownloadUrl(null);
     setFallbackNotice(false);
+    setAudioFallbackModalOpen(false);
     chunksRef.current = [];
     setElapsedSeconds(0);
 
     const constraints = getVideoConstraints(quality, frameRate);
-    const wantDisplayAudio = audioSource === "system" || audioSource === "both";
-    const wantMic = audioSource === "mic" || audioSource === "both";
+    let wantDisplayAudio = audioSource === "system" || audioSource === "both";
+    let wantMic = audioSource === "mic" || audioSource === "both";
+
+    const applyNoAudioFallback = () => {
+      wantDisplayAudio = false;
+      wantMic = false;
+      setAudioSource("none");
+      setAudioFallbackModalOpen(true);
+    };
 
     try {
-      const displayOpts = {
-        video: constraints,
-        audio: wantDisplayAudio,
-        cursor,
-      };
-      const displayStream = await navigator.mediaDevices.getDisplayMedia(
-        displayOpts as DisplayMediaStreamOptions
-      );
+      let displayStream: MediaStream;
+      try {
+        const displayOpts = {
+          video: constraints,
+          audio: wantDisplayAudio,
+          cursor,
+        };
+        displayStream = await navigator.mediaDevices.getDisplayMedia(
+          displayOpts as DisplayMediaStreamOptions
+        );
+      } catch (err) {
+        if (wantDisplayAudio && isRequestedDeviceNotFound(err)) {
+          applyNoAudioFallback();
+          displayStream = await navigator.mediaDevices.getDisplayMedia(
+            { video: constraints, audio: false, cursor } as DisplayMediaStreamOptions
+          );
+        } else {
+          throw err;
+        }
+      }
+
       let stream: MediaStream = displayStream;
 
       if (wantMic) {
-        const micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const videoTracks = displayStream.getVideoTracks();
-        const audioTracks = [...displayStream.getAudioTracks(), ...micStream.getAudioTracks()];
-        stream = new MediaStream([...videoTracks, ...audioTracks]);
+        try {
+          const micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          const videoTracks = displayStream.getVideoTracks();
+          const audioTracks = [
+            ...displayStream.getAudioTracks(),
+            ...micStream.getAudioTracks(),
+          ];
+          stream = new MediaStream([...videoTracks, ...audioTracks]);
+        } catch (err) {
+          if (isRequestedDeviceNotFound(err)) {
+            applyNoAudioFallback();
+            // Stop any system-audio tracks we already captured; we're switching to "No Audio".
+            displayStream.getAudioTracks().forEach((track) => track.stop());
+            stream = new MediaStream(displayStream.getVideoTracks());
+          } else {
+            throw err;
+          }
+        }
+      } else if (!wantDisplayAudio) {
+        // Defensive: ensure we never keep audio tracks when the effective mode is "No Audio".
+        displayStream.getAudioTracks().forEach((track) => track.stop());
+        stream = new MediaStream(displayStream.getVideoTracks());
       }
 
       streamRef.current = stream;
@@ -479,6 +601,28 @@ export function ScreenRecorder() {
         <p className="text-sm text-muted-foreground rounded-xl bg-muted/30 px-4 py-2.5">
           {t("screenRecord.fallbackNotice")}
         </p>
+      )}
+
+      {audioFallbackModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-[15vh] px-4" role="dialog" aria-modal="true">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" aria-hidden onClick={() => setAudioFallbackModalOpen(false)} />
+          <div
+            className="relative w-full max-w-lg rounded-xl border border-border bg-popover text-popover-foreground shadow-xl overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="px-5 py-4 border-b border-border">
+              <h4 className="text-sm font-semibold text-foreground">{t("screenRecord.audioNotDetectedTitle")}</h4>
+            </div>
+            <div className="px-5 py-4 text-sm text-muted-foreground">
+              {t("screenRecord.audioNotDetectedMessage")}
+            </div>
+            <div className="px-5 py-4 border-t border-border flex justify-end">
+              <Button type="button" variant="outline" onClick={() => setAudioFallbackModalOpen(false)}>
+                {t("screenRecord.audioNotDetectedOk")}
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
 
       {downloadUrl && (
