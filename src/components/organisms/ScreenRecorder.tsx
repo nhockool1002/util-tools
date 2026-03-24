@@ -327,6 +327,20 @@ export function ScreenRecorder() {
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLSelectElement) return;
+
+      if (isRecording) {
+        if (e.key === "Escape") {
+          e.preventDefault();
+          handleStop();
+          return;
+        }
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === "s") {
+          e.preventDefault();
+          handleStop();
+          return;
+        }
+      }
+
       if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key.toLowerCase() === "r") {
         e.preventDefault();
         const now = Date.now();

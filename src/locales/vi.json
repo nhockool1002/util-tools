@@ -21,7 +21,8 @@
     "convertCase": "Convert Case",
     "fontConverter": "Đổi font",
     "regexTester": "Regex Tester",
-    "colorPalettes": "Bảng màu"
+    "colorPalettes": "Bảng màu",
+    "responsiveTest": "Responsive Test"
   },
   "font": {
     "default": "Mặc định",
@@ -34,7 +35,9 @@
   },
   "sidebar": {
     "collapse": "Thu gọn thanh bên",
-    "expand": "Mở rộng thanh bên"
+    "expand": "Mở rộng thanh bên",
+    "collapseCategory": "Thu gọn nhóm",
+    "expandCategory": "Mở rộng nhóm"
   },
   "quickSearch": {
     "ariaLabel": "Tìm nhanh công cụ",
@@ -183,7 +186,7 @@
     "recBadge": "REC",
     "paused": "Đã tạm dừng",
     "elapsed": "Thời gian",
-    "shortcutHint": "Phím tắt: Ctrl+R rồi bấm R lần nữa (hoặc Cmd+R, R) trong 0,5s để bắt đầu/dừng.",
+    "shortcutHint": "Phím tắt: bấm Ctrl+R / Cmd+R hai lần (trong 0,5s) để bắt đầu hoặc dừng. Khi đang ghi: Esc hoặc Ctrl+Shift+S / Cmd+Shift+S để dừng.",
     "fallbackNotice": "Trình duyệt không hỗ trợ MP4; video đã lưu dưới dạng WebM.",
     "history": "Lịch sử ghi"
   },
@@ -336,5 +339,25 @@
     "copied": "Đã sao chép: {{color}}",
     "clickToCopy": "Bấm để sao chép HEX",
     "helpLine": "Mẹo: bấm bất kỳ ô màu nào để copy HEX vào clipboard."
+  },
+  "responsiveTest": {
+    "urlPlaceholder": "Nhập URL website (vd: example.com hoặc https://example.com)",
+    "load": "Tải",
+    "reload": "Tải lại",
+    "orientation": "Hướng",
+    "portrait": "Dọc",
+    "landscape": "Ngang",
+    "rotate": "Xoay",
+    "presets": "Thiết bị mẫu",
+    "phone": "Điện thoại",
+    "tablet": "Máy tính bảng",
+    "customSize": "Kích thước tùy chỉnh",
+    "applyCustom": "Áp dụng custom",
+    "usePreset": "Dùng preset",
+    "currentViewport": "Viewport hiện tại",
+    "openNewTab": "Mở tab mới",
+    "deviceDetectNote": "Lưu ý: công cụ này giả lập kích thước màn hình. Một số website nhận dạng thiết bị theo User-Agent nên có thể vẫn hiển thị giao diện desktop.",
+    "loadingHint": "Đang tải preview...",
+    "fallbackMessage": "Website này có thể chặn hiển thị trong iframe hoặc đang tải quá chậm. Hãy thử mở ở tab mới."
   }
 }

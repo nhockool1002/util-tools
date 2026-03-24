@@ -21,7 +21,8 @@
     "convertCase": "Convert Case",
     "fontConverter": "Font Converter",
     "regexTester": "Regex Tester",
-    "colorPalettes": "Color Palettes"
+    "colorPalettes": "Color Palettes",
+    "responsiveTest": "Responsive Test"
   },
   "font": {
     "default": "Default",
@@ -34,7 +35,9 @@
   },
   "sidebar": {
     "collapse": "Collapse sidebar",
-    "expand": "Expand sidebar"
+    "expand": "Expand sidebar",
+    "collapseCategory": "Collapse category",
+    "expandCategory": "Expand category"
   },
   "quickSearch": {
     "ariaLabel": "Quick search tools",
@@ -183,7 +186,7 @@
     "recBadge": "REC",
     "paused": "Paused",
     "elapsed": "Elapsed",
-    "shortcutHint": "Shortcut: Ctrl+R then R again (or Cmd+R, R) within 0.5s to start/stop.",
+    "shortcutHint": "Shortcuts: Double Ctrl+R / Cmd+R (within 0.5s) to start or stop. While recording: Esc or Ctrl+Shift+S / Cmd+Shift+S to stop.",
     "fallbackNotice": "MP4 is not supported in this browser; video was saved as WebM.",
     "history": "Recording history"
   },
@@ -336,5 +339,25 @@
     "copied": "Copied: {{color}}",
     "clickToCopy": "Click to copy HEX",
     "helpLine": "Tip: Click any square; HEX will be copied to clipboard."
+  },
+  "responsiveTest": {
+    "urlPlaceholder": "Enter website URL (e.g. example.com or https://example.com)",
+    "load": "Load",
+    "reload": "Reload",
+    "orientation": "Orientation",
+    "portrait": "Portrait",
+    "landscape": "Landscape",
+    "rotate": "Rotate",
+    "presets": "Device presets",
+    "phone": "Phone",
+    "tablet": "Tablet",
+    "customSize": "Custom size",
+    "applyCustom": "Apply custom",
+    "usePreset": "Use preset",
+    "currentViewport": "Current viewport",
+    "openNewTab": "Open new tab",
+    "deviceDetectNote": "Note: this tool emulates viewport size only. Some websites detect device using User-Agent, so they may still render desktop layout.",
+    "loadingHint": "Loading preview...",
+    "fallbackMessage": "This website may block iframe embedding or is loading too slowly. Try opening it in a new tab."
   }
 }

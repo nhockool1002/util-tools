@@ -7,14 +7,79 @@ import { NavItem } from "@/components/molecules/NavItem";
 import { Logo } from "@/components/atoms/Logo";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { PanelLeftClose, PanelLeft } from "lucide-react";
+import { ChevronDown, ChevronRight, PanelLeftClose, PanelLeft } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
 
 const SIDEBAR_WIDTH_EXPANDED = 260;
 const SIDEBAR_WIDTH_COLLAPSED = 72;
+const CATEGORY_STORAGE_KEY = "util-tools-sidebar-category-state";
+
+type CategoryState = Record<string, boolean>;
 
 export function Sidebar({ className }: { className?: string }) {
   const { t } = useLanguage();
   const { collapsed, toggle } = useSidebar();
+  const pathname = usePathname();
+
+  const allExpandedCategoryState = useMemo(
+    () =>
+      menuCategories.reduce<CategoryState>((acc, category) => {
+        acc[category.id] = true;
+        return acc;
+      }, {}),
+    []
+  );
+
+  const [expandedByCategory, setExpandedByCategory] = useState<CategoryState>(allExpandedCategoryState);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const raw = localStorage.getItem(CATEGORY_STORAGE_KEY);
+    if (!raw) return;
+
+    try {
+      const parsed = JSON.parse(raw) as CategoryState;
+      setExpandedByCategory((prev) => ({ ...prev, ...parsed }));
+    } catch {
+      // ignore invalid saved sidebar category state
+    }
+  }, []);
+
+  const persistCategoryState = useCallback((next: CategoryState) => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(CATEGORY_STORAGE_KEY, JSON.stringify(next));
+    }
+  }, []);
+
+  const toggleCategory = useCallback(
+    (categoryId: string) => {
+      setExpandedByCategory((prev) => {
+        const next = { ...prev, [categoryId]: !prev[categoryId] };
+        persistCategoryState(next);
+        return next;
+      });
+    },
+    [persistCategoryState]
+  );
+
+  useEffect(() => {
+    if (!pathname) return;
+
+    const activeCategory = menuCategories.find((category) =>
+      category.items.some((item) => pathname === item.path || pathname.startsWith(`${item.path}/`))
+    );
+
+    if (!activeCategory) return;
+
+    setExpandedByCategory((prev) => {
+      if (prev[activeCategory.id]) return prev;
+      const next = { ...prev, [activeCategory.id]: true };
+      persistCategoryState(next);
+      return next;
+    });
+  }, [pathname, persistCategoryState]);
 
   return (
     <aside
@@ -40,22 +105,39 @@ export function Sidebar({ className }: { className?: string }) {
         {menuCategories.map((category) => (
           <div key={category.id} className={cn("mb-6", collapsed && "mb-4")}>
             {!collapsed && (
-              <h3 className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/90">
-                {t(category.labelKey)}
-              </h3>
+              <button
+                type="button"
+                onClick={() => toggleCategory(category.id)}
+                aria-label={`${
+                  expandedByCategory[category.id] ? t("sidebar.collapseCategory") : t("sidebar.expandCategory")
+                }: ${t(category.labelKey)}`}
+                title={`${
+                  expandedByCategory[category.id] ? t("sidebar.collapseCategory") : t("sidebar.expandCategory")
+                }: ${t(category.labelKey)}`}
+                className="mb-2 flex w-full items-center justify-between rounded-md px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/90 transition-colors hover:bg-sidebar-accent/70 hover:text-sidebar-foreground"
+              >
+                <span>{t(category.labelKey)}</span>
+                {expandedByCategory[category.id] ? (
+                  <ChevronDown className="size-3.5 shrink-0" aria-hidden />
+                ) : (
+                  <ChevronRight className="size-3.5 shrink-0" aria-hidden />
+                )}
+              </button>
             )}
-            <ul className="space-y-1">
-              {category.items.map((item) => (
-                <li key={item.id}>
-                  <NavItem
-                    href={item.path}
-                    label={t(item.labelKey)}
-                    icon={item.icon}
-                    collapsed={collapsed}
-                  />
-                </li>
-              ))}
-            </ul>
+            {(collapsed || expandedByCategory[category.id]) && (
+              <ul className="space-y-1">
+                {category.items.map((item) => (
+                  <li key={item.id}>
+                    <NavItem
+                      href={item.path}
+                      label={t(item.labelKey)}
+                      icon={item.icon}
+                      collapsed={collapsed}
+                    />
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         ))}
       </nav>
