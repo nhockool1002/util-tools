@@ -37,6 +37,10 @@ function patch<K extends keyof SubtitleStyleState>(
   return { ...v, [key]: val };
 }
 
+function safeHex6(val: string | undefined, fallback: string): string {
+  return typeof val === "string" && /^#[0-9A-Fa-f]{6}$/.test(val) ? val : fallback;
+}
+
 export function LocalVideoSubtitlePanel({
   value,
   onChange,
@@ -83,11 +87,13 @@ export function LocalVideoSubtitlePanel({
               min={12}
               max={48}
               step={1}
-              value={value.fontSizePx}
+              value={Number.isFinite(value.fontSizePx) ? value.fontSizePx : 22}
               className="flex-1 accent-primary"
               onChange={(e) => onChange(patch(value, "fontSizePx", Number(e.target.value)))}
             />
-            <span className="text-muted-foreground w-10 text-right text-xs tabular-nums">{value.fontSizePx}px</span>
+            <span className="text-muted-foreground w-10 text-right text-xs tabular-nums">
+              {Number.isFinite(value.fontSizePx) ? value.fontSizePx : 22}px
+            </span>
           </div>
         </Field>
 
@@ -95,13 +101,13 @@ export function LocalVideoSubtitlePanel({
           <div className="flex items-center gap-2">
             <input
               type="color"
-              value={value.textColor.length === 7 ? value.textColor : "#ffffff"}
+              value={safeHex6(value.textColor, "#ffffff")}
               className="border-input h-9 w-12 cursor-pointer rounded border bg-transparent p-0.5"
               onChange={(e) => onChange(patch(value, "textColor", e.target.value))}
               aria-label={t("localVideo.subTextColor")}
             />
             <Input
-              value={value.textColor}
+              value={typeof value.textColor === "string" ? value.textColor : "#ffffff"}
               onChange={(e) => onChange(patch(value, "textColor", e.target.value))}
               className="font-mono text-xs"
               spellCheck={false}
@@ -124,7 +130,7 @@ export function LocalVideoSubtitlePanel({
               <div className="flex flex-wrap items-center gap-2">
                 <input
                   type="color"
-                  value={value.bgColor.length === 7 ? value.bgColor : "#000000"}
+                  value={safeHex6(value.bgColor, "#000000")}
                   className="border-input h-9 w-12 cursor-pointer rounded border bg-transparent p-0.5"
                   onChange={(e) => onChange(patch(value, "bgColor", e.target.value))}
                   aria-label={t("localVideo.subBgColor")}
@@ -135,7 +141,7 @@ export function LocalVideoSubtitlePanel({
                   min={0}
                   max={1}
                   step={0.05}
-                  value={value.bgOpacity}
+                  value={Number.isFinite(value.bgOpacity) ? value.bgOpacity : 0.65}
                   className="min-w-[100px] flex-1 accent-primary"
                   onChange={(e) => onChange(patch(value, "bgOpacity", Number(e.target.value)))}
                 />
@@ -203,12 +209,12 @@ export function LocalVideoSubtitlePanel({
               min={-0.1}
               max={0.3}
               step={0.02}
-              value={value.letterSpacingEm}
+              value={Number.isFinite(value.letterSpacingEm) ? value.letterSpacingEm : 0}
               className="flex-1 accent-primary"
               onChange={(e) => onChange(patch(value, "letterSpacingEm", Number(e.target.value)))}
             />
             <span className="text-muted-foreground w-12 text-right text-xs tabular-nums">
-              {value.letterSpacingEm.toFixed(2)}em
+              {Number(value.letterSpacingEm ?? 0).toFixed(2)}em
             </span>
           </div>
         </Field>
@@ -220,11 +226,13 @@ export function LocalVideoSubtitlePanel({
               min={40}
               max={100}
               step={1}
-              value={value.maxWidthPct}
+              value={Number.isFinite(value.maxWidthPct) ? value.maxWidthPct : 92}
               className="flex-1 accent-primary"
               onChange={(e) => onChange(patch(value, "maxWidthPct", Number(e.target.value)))}
             />
-            <span className="text-muted-foreground w-10 text-right text-xs tabular-nums">{value.maxWidthPct}%</span>
+            <span className="text-muted-foreground w-10 text-right text-xs tabular-nums">
+              {Number.isFinite(value.maxWidthPct) ? value.maxWidthPct : 92}%
+            </span>
           </div>
         </Field>
 
@@ -239,7 +247,7 @@ export function LocalVideoSubtitlePanel({
                   type="number"
                   min={0}
                   max={32}
-                  value={value.paddingY}
+                  value={Number.isFinite(value.paddingY) ? value.paddingY : 6}
                   className="h-8 text-xs"
                   onChange={(e) => onChange(patch(value, "paddingY", Math.max(0, Number(e.target.value) || 0)))}
                   aria-label="Y"
@@ -248,7 +256,7 @@ export function LocalVideoSubtitlePanel({
                   type="number"
                   min={0}
                   max={48}
-                  value={value.paddingX}
+                  value={Number.isFinite(value.paddingX) ? value.paddingX : 12}
                   className="h-8 text-xs"
                   onChange={(e) => onChange(patch(value, "paddingX", Math.max(0, Number(e.target.value) || 0)))}
                   aria-label="X"
@@ -263,7 +271,7 @@ export function LocalVideoSubtitlePanel({
                 type="number"
                 min={0}
                 max={24}
-                value={value.borderRadiusPx}
+                value={Number.isFinite(value.borderRadiusPx) ? value.borderRadiusPx : 6}
                 className="h-8 text-xs"
                 onChange={(e) =>
                   onChange(patch(value, "borderRadiusPx", Math.max(0, Number(e.target.value) || 0)))

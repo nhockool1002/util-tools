@@ -18,6 +18,7 @@ import {
   DEFAULT_SUBTITLE_STYLE,
   loadSubtitleStyle,
   positionToFlexClasses,
+  sanitizeSubtitleStyle,
   saveSubtitleStyle,
   subtitleStyleToBoxStyle,
   type SubtitleStyleState,
@@ -61,7 +62,7 @@ export function LocalVideoPlayer() {
   const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
-    saveSubtitleStyle(subtitleStyle);
+    saveSubtitleStyle(sanitizeSubtitleStyle(subtitleStyle));
   }, [subtitleStyle]);
 
   useEffect(() => {
@@ -185,8 +186,9 @@ export function LocalVideoPlayer() {
   }, [clearVideo, clearSubtitle]);
 
   const resetSubtitleStyle = useCallback(() => {
-    setSubtitleStyle(DEFAULT_SUBTITLE_STYLE);
-    saveSubtitleStyle(DEFAULT_SUBTITLE_STYLE);
+    const next = sanitizeSubtitleStyle(DEFAULT_SUBTITLE_STYLE);
+    setSubtitleStyle(next);
+    saveSubtitleStyle(next);
   }, []);
 
   const onPickVideo = useCallback(
@@ -394,7 +396,7 @@ export function LocalVideoPlayer() {
       {trackUrl && (
         <LocalVideoSubtitlePanel
           value={subtitleStyle}
-          onChange={setSubtitleStyle}
+          onChange={(next) => setSubtitleStyle(sanitizeSubtitleStyle(next))}
           onReset={resetSubtitleStyle}
           t={t}
         />
