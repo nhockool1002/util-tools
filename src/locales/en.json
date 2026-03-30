@@ -22,7 +22,8 @@
     "fontConverter": "Font Converter",
     "regexTester": "Regex Tester",
     "colorPalettes": "Color Palettes",
-    "responsiveTest": "Responsive Test"
+    "responsiveTest": "Responsive Test",
+    "localVideo": "Local Video Player"
   },
   "font": {
     "default": "Default",
@@ -359,5 +360,18 @@
     "deviceDetectNote": "Note: this tool emulates viewport size only. Some websites detect device using User-Agent, so they may still render desktop layout.",
     "loadingHint": "Loading preview...",
     "fallbackMessage": "This website may block iframe embedding or is loading too slowly. Try opening it in a new tab."
+  },
+  "localVideo": {
+    "hint": "Pick a local MP4 and an optional subtitle file (.srt or .vtt). Nothing is uploaded — playback uses blob URLs in your browser. Video uses preload=\"metadata\" to avoid loading the whole file upfront.",
+    "pickVideo": "Choose video",
+    "pickSub": "Choose subtitle",
+    "clearAll": "Clear all",
+    "videoLabel": "Video:",
+    "subLabel": "Subtitle:",
+    "invalidVideo": "Please choose a video file (e.g. MP4).",
+    "invalidSub": "Please choose a .srt or .vtt subtitle file.",
+    "subTooLarge": "Subtitle file is too large (max 2 MB).",
+    "subReadError": "Could not read the subtitle file.",
+    "emptyState": "Choose a video file to start playback. You can add subtitles anytime."
   }
 }

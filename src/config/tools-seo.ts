@@ -80,4 +80,9 @@ export const toolsSeo: Record<
     description:
       "Ghi màn hình, tab hoặc cửa sổ trực tiếp trên trình duyệt. Tải video, hỗ trợ demo và tài liệu hướng dẫn.",
   },
+  "/tools/local-video": {
+    title: "Local Video Player – Phát MP4 & phụ đề",
+    description:
+      "Chọn file video MP4 và phụ đề SRT/VTT trên máy để xem trong trình duyệt. Không upload server, tối ưu bộ nhớ với blob URL và preload metadata.",
+  },
 };

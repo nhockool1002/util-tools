@@ -15,6 +15,7 @@ import {
   CaseSensitive,
   Palette,
   Smartphone,
+  Clapperboard,
 } from "lucide-react";
 
 export type MenuItemId =
@@ -32,7 +33,8 @@ export type MenuItemId =
   | "color-palettes"
   | "regex-tester"
   | "convert-case"
-  | "responsive-test";
+  | "responsive-test"
+  | "local-video";
 
 export interface MenuItem {
   id: MenuItemId;
@@ -95,6 +97,7 @@ export const menuCategories: MenuCategory[] = [
     labelKey: "nav.mediaTool",
     items: [
       { id: "screen-recorder", path: "/tools/screen-recorder", labelKey: "nav.screenRecorder", icon: Monitor },
+      { id: "local-video", path: "/tools/local-video", labelKey: "nav.localVideo", icon: Clapperboard },
     ],
   },
 ];

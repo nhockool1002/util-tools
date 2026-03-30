@@ -22,7 +22,8 @@
     "fontConverter": "Đổi font",
     "regexTester": "Regex Tester",
     "colorPalettes": "Bảng màu",
-    "responsiveTest": "Responsive Test"
+    "responsiveTest": "Responsive Test",
+    "localVideo": "Phát video local"
   },
   "font": {
     "default": "Mặc định",
@@ -359,5 +360,18 @@
     "deviceDetectNote": "Lưu ý: công cụ này giả lập kích thước màn hình. Một số website nhận dạng thiết bị theo User-Agent nên có thể vẫn hiển thị giao diện desktop.",
     "loadingHint": "Đang tải preview...",
     "fallbackMessage": "Website này có thể chặn hiển thị trong iframe hoặc đang tải quá chậm. Hãy thử mở ở tab mới."
+  },
+  "localVideo": {
+    "hint": "Chọn file video MP4 trên máy và phụ đề tùy chọn (.srt hoặc .vtt). Không upload lên server — chỉ dùng blob URL trong trình duyệt. Video dùng preload=\"metadata\" để không tải cả file một lúc.",
+    "pickVideo": "Chọn video",
+    "pickSub": "Chọn phụ đề",
+    "clearAll": "Xóa tất cả",
+    "videoLabel": "Video:",
+    "subLabel": "Phụ đề:",
+    "invalidVideo": "Vui lòng chọn file video (ví dụ MP4).",
+    "invalidSub": "Vui lòng chọn file phụ đề .srt hoặc .vtt.",
+    "subTooLarge": "File phụ đề quá lớn (tối đa 2 MB).",
+    "subReadError": "Không đọc được file phụ đề.",
+    "emptyState": "Chọn file video để phát. Có thể thêm phụ đề bất cứ lúc nào."
   }
 }

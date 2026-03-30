@@ -50,6 +50,7 @@ export function buildHomeJsonLd(): object {
     "/tools/compare-file",
     "/tools/find-in-file",
     "/tools/screen-recorder",
+    "/tools/local-video",
   ];
 
   return {
