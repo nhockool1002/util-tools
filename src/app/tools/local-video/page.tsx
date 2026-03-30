@@ -1,8 +1,25 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { DashboardLayout } from "@/components/templates/DashboardLayout";
-import { LocalVideoPlayer } from "@/components/organisms/LocalVideoPlayer";
 import { useLanguage } from "@/contexts/language-context";
+
+const LocalVideoPlayer = dynamic(
+  () =>
+    import("@/components/organisms/LocalVideoPlayer").then((m) => m.LocalVideoPlayer),
+  {
+    ssr: false,
+    loading: () => (
+      <div
+        className="flex min-h-[min(280px,40vh)] items-center justify-center rounded-xl border border-dashed border-border bg-muted/25"
+        role="status"
+        aria-busy
+      >
+        <div className="h-9 w-9 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    ),
+  }
+);
 
 export default function LocalVideoPage() {
   const { t } = useLanguage();

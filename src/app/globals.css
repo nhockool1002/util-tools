@@ -173,3 +173,16 @@
 .dark .screen-recorder-cta:hover {
   box-shadow: 0 14px 50px -10px oklch(0.6 0.25 264 / 0.55);
 }
+
+/* Local video: Plyr theme + giữ tỉ lệ khung hình */
+.local-video-plyr .plyr {
+  --plyr-color-main: var(--primary);
+  --plyr-video-background: #000;
+  border-radius: inherit;
+}
+.local-video-plyr .plyr--video {
+  max-height: min(70vh, 720px);
+}
+.local-video-plyr .plyr video {
+  object-fit: contain;
+}

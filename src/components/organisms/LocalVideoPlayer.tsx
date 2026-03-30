@@ -6,11 +6,25 @@ import {
   useId,
   useRef,
   useState,
+  type DragEvent,
 } from "react";
+import Plyr from "plyr";
+import "plyr/dist/plyr.css";
 import { useLanguage } from "@/contexts/language-context";
 import { Button } from "@/components/ui/button";
+import { LocalVideoSubtitlePanel } from "@/components/organisms/LocalVideoSubtitlePanel";
 import { srtToVtt } from "@/lib/srt-to-vtt";
-import { Clapperboard, FileVideo, Subtitles, X } from "lucide-react";
+import {
+  DEFAULT_SUBTITLE_STYLE,
+  loadSubtitleStyle,
+  positionToFlexClasses,
+  saveSubtitleStyle,
+  subtitleStyleToBoxStyle,
+  type SubtitleStyleState,
+} from "@/lib/local-video-subtitle-style";
+import { findCueAt, parseWebVttCues, type VttCue } from "@/lib/webvtt-parse";
+import { cn } from "@/lib/utils";
+import { Clapperboard, FileVideo, Subtitles, Upload, X } from "lucide-react";
 
 const SUBTITLE_MAX_BYTES = 2 * 1024 * 1024;
 
@@ -19,17 +33,36 @@ function isProbablyVtt(content: string): boolean {
   return head.toUpperCase().startsWith("WEBVTT");
 }
 
+function classifyFile(file: File): "video" | "subtitle" | "unknown" {
+  const n = file.name.toLowerCase();
+  if (file.type.startsWith("video/") || /\.(mp4|webm|ogg|mov|m4v|mkv)$/i.test(n)) {
+    return "video";
+  }
+  if (n.endsWith(".srt") || n.endsWith(".vtt")) return "subtitle";
+  return "unknown";
+}
+
 export function LocalVideoPlayer() {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const videoId = useId();
   const videoInputRef = useRef<HTMLInputElement>(null);
   const subInputRef = useRef<HTMLInputElement>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const dragDepthRef = useRef(0);
 
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [trackUrl, setTrackUrl] = useState<string | null>(null);
+  const [cues, setCues] = useState<VttCue[]>([]);
+  const [activeCueText, setActiveCueText] = useState("");
+  const [subtitleStyle, setSubtitleStyle] = useState<SubtitleStyleState>(() => loadSubtitleStyle());
   const [videoName, setVideoName] = useState<string>("");
   const [subName, setSubName] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+  useEffect(() => {
+    saveSubtitleStyle(subtitleStyle);
+  }, [subtitleStyle]);
 
   useEffect(() => {
     return () => {
@@ -42,6 +75,88 @@ export function LocalVideoPlayer() {
       if (trackUrl) URL.revokeObjectURL(trackUrl);
     };
   }, [trackUrl]);
+
+  const applyVideoFile = useCallback(
+    (file: File): boolean => {
+      if (!file.type.startsWith("video/") && !/\.(mp4|webm|ogg|mov|m4v|mkv)$/i.test(file.name)) {
+        setError(t("localVideo.invalidVideo"));
+        return false;
+      }
+      setError(null);
+      setVideoUrl((prev) => {
+        if (prev) URL.revokeObjectURL(prev);
+        return URL.createObjectURL(file);
+      });
+      setVideoName(file.name);
+      if (videoInputRef.current) videoInputRef.current.value = "";
+      return true;
+    },
+    [t]
+  );
+
+  const applySubtitleFile = useCallback(
+    async (file: File): Promise<boolean> => {
+      const lower = file.name.toLowerCase();
+      if (!lower.endsWith(".srt") && !lower.endsWith(".vtt")) {
+        setError(t("localVideo.invalidSub"));
+        return false;
+      }
+      if (file.size > SUBTITLE_MAX_BYTES) {
+        setError(t("localVideo.subTooLarge"));
+        return false;
+      }
+      setError(null);
+      try {
+        const raw = await file.text();
+        let vttBody: string;
+        if (lower.endsWith(".vtt") || isProbablyVtt(raw)) {
+          vttBody = isProbablyVtt(raw) ? raw.replace(/^\uFEFF/, "") : raw;
+        } else {
+          vttBody = srtToVtt(raw);
+        }
+        const parsed = parseWebVttCues(vttBody);
+        setCues(parsed);
+        const blob = new Blob([vttBody], { type: "text/vtt;charset=utf-8" });
+        setTrackUrl((prev) => {
+          if (prev) URL.revokeObjectURL(prev);
+          return URL.createObjectURL(blob);
+        });
+        setSubName(file.name);
+        if (subInputRef.current) subInputRef.current.value = "";
+        if (parsed.length === 0) setError(t("localVideo.subNoCues"));
+        return true;
+      } catch {
+        setError(t("localVideo.subReadError"));
+        return false;
+      }
+    },
+    [t]
+  );
+
+  const processFiles = useCallback(
+    async (files: File[]) => {
+      let videoFile: File | undefined;
+      let subFile: File | undefined;
+      let unknownCount = 0;
+
+      for (const f of files) {
+        const kind = classifyFile(f);
+        if (kind === "video" && !videoFile) videoFile = f;
+        else if (kind === "subtitle" && !subFile) subFile = f;
+        else if (kind === "unknown") unknownCount++;
+      }
+
+      if (videoFile) applyVideoFile(videoFile);
+      if (subFile) await applySubtitleFile(subFile);
+
+      if (!videoFile && !subFile) {
+        if (files.length === 0) return;
+        if (unknownCount > 0) setError(t("localVideo.dropUnknown"));
+        else setError(t("localVideo.dropNoValid"));
+      }
+    },
+    [applySubtitleFile, applyVideoFile, t]
+  );
 
   const clearVideo = useCallback(() => {
     setVideoUrl((prev) => {
@@ -57,6 +172,8 @@ export function LocalVideoPlayer() {
       if (prev) URL.revokeObjectURL(prev);
       return null;
     });
+    setCues([]);
+    setActiveCueText("");
     setSubName("");
     if (subInputRef.current) subInputRef.current.value = "";
   }, []);
@@ -67,70 +184,150 @@ export function LocalVideoPlayer() {
     setError(null);
   }, [clearVideo, clearSubtitle]);
 
+  const resetSubtitleStyle = useCallback(() => {
+    setSubtitleStyle(DEFAULT_SUBTITLE_STYLE);
+    saveSubtitleStyle(DEFAULT_SUBTITLE_STYLE);
+  }, []);
+
   const onPickVideo = useCallback(
     (fileList: FileList | null) => {
       const file = fileList?.[0];
       if (!file) return;
-      if (!file.type.startsWith("video/") && !/\.mp4$/i.test(file.name)) {
-        setError(t("localVideo.invalidVideo"));
-        return;
-      }
-      setError(null);
-      setVideoUrl((prev) => {
-        if (prev) URL.revokeObjectURL(prev);
-        return URL.createObjectURL(file);
-      });
-      setVideoName(file.name);
+      applyVideoFile(file);
     },
-    [t]
+    [applyVideoFile]
   );
 
   const onPickSubtitle = useCallback(
     async (fileList: FileList | null) => {
       const file = fileList?.[0];
       if (!file) return;
-      const lower = file.name.toLowerCase();
-      if (!lower.endsWith(".srt") && !lower.endsWith(".vtt")) {
-        setError(t("localVideo.invalidSub"));
-        return;
-      }
-      if (file.size > SUBTITLE_MAX_BYTES) {
-        setError(t("localVideo.subTooLarge"));
-        return;
-      }
-      setError(null);
-      try {
-        const raw = await file.text();
-        let vttBody: string;
-        if (lower.endsWith(".vtt") || isProbablyVtt(raw)) {
-          vttBody = isProbablyVtt(raw) ? raw.replace(/^\uFEFF/, "") : raw;
-        } else {
-          vttBody = srtToVtt(raw);
-        }
-        const blob = new Blob([vttBody], { type: "text/vtt;charset=utf-8" });
-        setTrackUrl((prev) => {
-          if (prev) URL.revokeObjectURL(prev);
-          return URL.createObjectURL(blob);
-        });
-        setSubName(file.name);
-      } catch {
-        setError(t("localVideo.subReadError"));
-      }
+      await applySubtitleFile(file);
     },
-    [t]
+    [applySubtitleFile]
   );
+
+  const handleDragEnter = useCallback((e: DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragDepthRef.current += 1;
+    if (dragDepthRef.current === 1) setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragDepthRef.current -= 1;
+    if (dragDepthRef.current <= 0) {
+      dragDepthRef.current = 0;
+      setIsDragging(false);
+    }
+  }, []);
+
+  const handleDragOver = useCallback((e: DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    e.dataTransfer.dropEffect = "copy";
+  }, []);
+
+  const handleDrop = useCallback(
+    (e: DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dragDepthRef.current = 0;
+      setIsDragging(false);
+      void processFiles(Array.from(e.dataTransfer.files));
+    },
+    [processFiles]
+  );
+
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v || cues.length === 0) {
+      setActiveCueText("");
+      return;
+    }
+
+    const tick = () => {
+      const cue = findCueAt(cues, v.currentTime);
+      const next = cue?.text ?? "";
+      setActiveCueText((prev) => (prev === next ? prev : next));
+    };
+
+    tick();
+    v.addEventListener("timeupdate", tick);
+    v.addEventListener("seeking", tick);
+    return () => {
+      v.removeEventListener("timeupdate", tick);
+      v.removeEventListener("seeking", tick);
+    };
+  }, [cues, videoUrl]);
+
+  useEffect(() => {
+    const el = videoRef.current;
+    if (!el || !videoUrl) return;
+
+    const player = new Plyr(el, {
+      iconUrl: "/plyr.svg",
+      fullscreen: {
+        enabled: true,
+        iosNative: true,
+        container: "[data-local-video-root]",
+      },
+      controls: [
+        "play-large",
+        "play",
+        "progress",
+        "current-time",
+        "mute",
+        "volume",
+        "settings",
+        "pip",
+        "airplay",
+        "fullscreen",
+      ],
+      settings: ["speed", "loop"],
+      keyboard: { focused: true, global: false },
+      tooltips: { controls: true, seek: true },
+      ...(locale === "vi"
+        ? {
+            i18n: {
+              play: "Phát",
+              pause: "Tạm dừng",
+              mute: "Tắt tiếng",
+              unmute: "Bật tiếng",
+              enterFullscreen: "Toàn màn hình",
+              exitFullscreen: "Thoát toàn màn hình",
+              settings: "Cài đặt",
+              speed: "Tốc độ",
+              normal: "Bình thường",
+              loop: "Lặp",
+              pip: "PIP",
+              seek: "Tua",
+              seekLabel: "{currentTime} / {duration}",
+              volume: "Âm lượng",
+            },
+          }
+        : {}),
+    });
+
+    return () => {
+      player.destroy();
+    };
+  }, [videoUrl, trackUrl, locale]);
+
+  const boxStyle = subtitleStyleToBoxStyle(subtitleStyle);
+  const positionFlex = positionToFlexClasses(subtitleStyle.position);
 
   return (
     <div className="space-y-6">
-      <p className="text-sm text-muted-foreground leading-relaxed">
-        {t("localVideo.hint")}
-      </p>
+      <p className="text-sm text-muted-foreground leading-relaxed">{t("localVideo.hint")}</p>
 
       <div className="flex flex-wrap items-center gap-2">
         <input
           ref={videoInputRef}
           type="file"
-          accept="video/mp4,video/*,.mp4"
+          accept="video/mp4,video/*,.mp4,.webm,.mov"
           className="sr-only"
           aria-label={t("localVideo.pickVideo")}
           onChange={(e) => onPickVideo(e.target.files)}
@@ -194,37 +391,77 @@ export function LocalVideoPlayer() {
         </p>
       )}
 
-      {videoUrl ? (
-        <div className="rounded-xl border border-border bg-black/40 overflow-hidden shadow-inner">
-          <video
-            key={`${videoUrl}-${trackUrl ?? ""}`}
-            id={videoId}
-            className="w-full max-h-[min(70vh,720px)] object-contain bg-black"
-            controls
-            playsInline
-            preload="metadata"
-            src={videoUrl}
-          >
-            {trackUrl && (
-              <track
-                kind="subtitles"
-                srcLang="und"
-                label={subName || "Subtitles"}
-                src={trackUrl}
-                default
-              />
-            )}
-          </video>
-        </div>
-      ) : (
-        <div
-          className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border bg-muted/30 py-16 px-4 text-center"
-          aria-hidden
-        >
-          <Clapperboard className="size-12 text-muted-foreground/60" />
-          <p className="text-sm text-muted-foreground max-w-md">{t("localVideo.emptyState")}</p>
-        </div>
+      {trackUrl && (
+        <LocalVideoSubtitlePanel
+          value={subtitleStyle}
+          onChange={setSubtitleStyle}
+          onReset={resetSubtitleStyle}
+          t={t}
+        />
       )}
+
+      <div
+        className={cn(
+          "relative rounded-xl transition-[box-shadow,border-color,background-color] duration-200",
+          "min-h-[min(280px,50vh)]",
+          videoUrl ? "border border-border bg-black/30" : "border-2 border-dashed border-border bg-muted/25",
+          isDragging &&
+            "border-primary border-solid ring-2 ring-primary/40 ring-offset-2 ring-offset-background bg-primary/5"
+        )}
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+      >
+        {isDragging && (
+          <div
+            className="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 rounded-[inherit] bg-primary/10 backdrop-blur-[1px]"
+            aria-hidden
+          >
+            <Upload className="size-10 text-primary" />
+            <span className="text-sm font-medium text-foreground">{t("localVideo.dropActive")}</span>
+          </div>
+        )}
+
+        {videoUrl ? (
+          <div
+            className="relative w-full overflow-hidden rounded-[inherit]"
+            data-local-video-root
+          >
+            <div className="local-video-plyr">
+              <video
+                ref={videoRef}
+                key={`${videoUrl}-${String(Boolean(trackUrl))}`}
+                id={videoId}
+                className="max-h-[min(70vh,720px)] w-full object-contain"
+                playsInline
+                preload="metadata"
+                src={videoUrl}
+              />
+            </div>
+
+            {cues.length > 0 && activeCueText ? (
+              <div
+                className={cn(
+                  "absolute inset-0 z-[18] flex flex-col pointer-events-none",
+                  positionFlex
+                )}
+                aria-live="polite"
+              >
+                <div style={boxStyle}>{activeCueText}</div>
+              </div>
+            ) : null}
+          </div>
+        ) : (
+          <div className="flex min-h-[min(280px,50vh)] flex-col items-center justify-center gap-4 px-6 py-12 text-center">
+            <Clapperboard className="size-14 text-muted-foreground/50" aria-hidden />
+            <div className="space-y-2 max-w-md">
+              <p className="text-sm font-medium text-foreground">{t("localVideo.dropTitle")}</p>
+              <p className="text-sm text-muted-foreground">{t("localVideo.dropHint")}</p>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
