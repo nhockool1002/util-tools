@@ -265,11 +265,14 @@ export function LocalVideoPlayer() {
     };
   }, [cues, videoUrl]);
 
+  /* Plyr chỉ gắn theo videoUrl + locale — không theo trackUrl (tránh destroy/init lại khi tải phụ đề). */
   useEffect(() => {
     const el = videoRef.current;
     if (!el || !videoUrl) return;
 
-    const player = new Plyr(el, {
+    let player: Plyr | null = null;
+    try {
+      player = new Plyr(el, {
       iconUrl: "/plyr.svg",
       fullscreen: {
         enabled: true,
@@ -312,11 +315,18 @@ export function LocalVideoPlayer() {
           }
         : {}),
     });
+    } catch {
+      return;
+    }
 
     return () => {
-      player.destroy();
+      try {
+        player?.destroy();
+      } catch {
+        /* ignore */
+      }
     };
-  }, [videoUrl, trackUrl, locale]);
+  }, [videoUrl, locale]);
 
   const boxStyle = subtitleStyleToBoxStyle(subtitleStyle);
   const positionFlex = positionToFlexClasses(subtitleStyle.position);
@@ -433,7 +443,7 @@ export function LocalVideoPlayer() {
             <div className="local-video-plyr">
               <video
                 ref={videoRef}
-                key={`${videoUrl}-${String(Boolean(trackUrl))}`}
+                key={videoUrl}
                 id={videoId}
                 className="max-h-[min(70vh,720px)] w-full object-contain"
                 playsInline
