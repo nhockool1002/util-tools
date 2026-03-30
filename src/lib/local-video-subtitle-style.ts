@@ -1,6 +1,19 @@
 import type { CSSProperties } from "react";
 
-export type SubtitleFontFamily = "system" | "sans" | "serif" | "mono" | "cjk";
+export type SubtitleFontFamily =
+  | "system"
+  | "sans"
+  | "serif"
+  | "mono"
+  | "cjk"
+  | "verdana"
+  | "tahoma"
+  | "trebuchet"
+  | "georgia"
+  | "garamond"
+  | "palatino"
+  | "courier"
+  | "impact";
 
 export type SubtitlePosition =
   | "top-left"
@@ -60,6 +73,14 @@ const FONT_STACK: Record<SubtitleFontFamily, string> = {
   serif: 'Georgia, "Noto Serif", "Times New Roman", Times, serif',
   mono: 'ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace',
   cjk: '"PingFang SC","Microsoft YaHei","Noto Sans CJK SC","Hiragino Sans",sans-serif',
+  verdana: 'Verdana, Geneva, "DejaVu Sans", sans-serif',
+  tahoma: 'Tahoma, "DejaVu Sans Condensed", Geneva, sans-serif',
+  trebuchet: '"Trebuchet MS", "Lucida Grande", "Lucida Sans Unicode", sans-serif',
+  georgia: 'Georgia, "Times New Roman", Times, serif',
+  garamond: 'Garamond, "Palatino Linotype", Palatino, "Times New Roman", serif',
+  palatino: '"Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif',
+  courier: '"Courier New", Courier, "Liberation Mono", monospace',
+  impact: 'Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif',
 };
 
 const TEXT_SHADOW: Record<SubtitleStyleState["textShadow"], string> = {
@@ -68,7 +89,21 @@ const TEXT_SHADOW: Record<SubtitleStyleState["textShadow"], string> = {
   strong: "0 0 4px #000, 0 0 8px #000, 0 2px 4px rgba(0,0,0,1)",
 };
 
-const FONT_FAMILIES: SubtitleFontFamily[] = ["system", "sans", "serif", "mono", "cjk"];
+const FONT_FAMILIES: SubtitleFontFamily[] = [
+  "system",
+  "sans",
+  "serif",
+  "mono",
+  "cjk",
+  "verdana",
+  "tahoma",
+  "trebuchet",
+  "georgia",
+  "garamond",
+  "palatino",
+  "courier",
+  "impact",
+];
 const SHADOW_KEYS: SubtitleStyleState["textShadow"][] = ["none", "soft", "strong"];
 const POSITION_KEYS: SubtitlePosition[] = [
   "top-left",
@@ -150,6 +185,8 @@ export function subtitleStyleToBoxStyle(s: SubtitleStyleState): CSSProperties {
   const mw = clampNum(s.maxWidthPct, 40, 100, 92);
   const letter = clampNum(s.letterSpacingEm, -0.1, 0.3, 0);
 
+  const textAlign = positionToTextAlign(s.position);
+
   return {
     fontFamily: family,
     fontSize: fs,
@@ -166,8 +203,14 @@ export function subtitleStyleToBoxStyle(s: SubtitleStyleState): CSSProperties {
     lineHeight: 1.45,
     whiteSpace: "pre-wrap",
     wordBreak: "break-word",
-    textAlign: "center",
+    textAlign,
   };
+}
+
+function positionToTextAlign(p: SubtitlePosition): "left" | "center" | "right" {
+  if (p.endsWith("-left")) return "left";
+  if (p.endsWith("-right")) return "right";
+  return "center";
 }
 
 function hexToRgba(hex: string, alpha: number): string {
@@ -179,17 +222,21 @@ function hexToRgba(hex: string, alpha: number): string {
   return `rgba(${r},${g},${b},${alpha})`;
 }
 
-export function positionToFlexClasses(position: SubtitlePosition): string {
+/**
+ * Định vị khối phụ đề trong vùng video (absolute; flex-col trước đây đảo trục justify/items).
+ */
+export function positionToAbsoluteClasses(position: SubtitlePosition): string {
   const map: Record<SubtitlePosition, string> = {
-    "top-left": "items-start justify-start pt-[6%] pl-[3%]",
-    "top-center": "items-start justify-center pt-[6%] px-[3%]",
-    "top-right": "items-start justify-end pt-[6%] pr-[3%]",
-    "middle-left": "items-center justify-start pl-[3%]",
-    "middle-center": "items-center justify-center px-[3%]",
-    "middle-right": "items-center justify-end pr-[3%]",
-    "bottom-left": "items-end justify-start pb-[14%] pl-[3%]",
-    "bottom-center": "items-end justify-center pb-[14%] px-[3%]",
-    "bottom-right": "items-end justify-end pb-[14%] pr-[3%]",
+    "top-left": "top-[6%] left-[3%] right-auto bottom-auto",
+    "top-center": "top-[6%] left-1/2 right-auto bottom-auto -translate-x-1/2",
+    "top-right": "top-[6%] right-[3%] left-auto bottom-auto",
+    "middle-left": "top-1/2 left-[3%] right-auto bottom-auto -translate-y-1/2",
+    "middle-center":
+      "top-1/2 left-1/2 right-auto bottom-auto -translate-x-1/2 -translate-y-1/2",
+    "middle-right": "top-1/2 right-[3%] left-auto bottom-auto -translate-y-1/2",
+    "bottom-left": "bottom-[14%] left-[3%] right-auto top-auto",
+    "bottom-center": "bottom-[14%] left-1/2 right-auto top-auto -translate-x-1/2",
+    "bottom-right": "bottom-[14%] right-[3%] left-auto top-auto",
   };
   return map[position] ?? map["bottom-center"];
 }

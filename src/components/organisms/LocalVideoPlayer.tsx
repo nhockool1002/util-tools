@@ -17,7 +17,7 @@ import { srtToVtt } from "@/lib/srt-to-vtt";
 import {
   DEFAULT_SUBTITLE_STYLE,
   loadSubtitleStyle,
-  positionToFlexClasses,
+  positionToAbsoluteClasses,
   sanitizeSubtitleStyle,
   saveSubtitleStyle,
   subtitleStyleToBoxStyle,
@@ -329,7 +329,7 @@ export function LocalVideoPlayer() {
   }, [videoUrl, locale]);
 
   const boxStyle = subtitleStyleToBoxStyle(subtitleStyle);
-  const positionFlex = positionToFlexClasses(subtitleStyle.position);
+  const positionClasses = positionToAbsoluteClasses(subtitleStyle.position);
 
   return (
     <div className="space-y-6">
@@ -453,14 +453,13 @@ export function LocalVideoPlayer() {
             </div>
 
             {cues.length > 0 && activeCueText ? (
-              <div
-                className={cn(
-                  "absolute inset-0 z-[18] flex flex-col pointer-events-none",
-                  positionFlex
-                )}
-                aria-live="polite"
-              >
-                <div style={boxStyle}>{activeCueText}</div>
+              <div className="absolute inset-0 z-[18] pointer-events-none" aria-live="polite">
+                <div
+                  className={cn("absolute min-w-0 max-w-full", positionClasses)}
+                  style={boxStyle}
+                >
+                  {activeCueText}
+                </div>
               </div>
             ) : null}
           </div>

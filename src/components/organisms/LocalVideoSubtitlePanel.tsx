@@ -1,11 +1,25 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import type { SubtitlePosition, SubtitleStyleState } from "@/lib/local-video-subtitle-style";
-import { RotateCcw } from "lucide-react";
+import { ChevronDown, RotateCcw } from "lucide-react";
+
+const STORAGE_PANEL_EXPANDED = "localVideo.subtitlePanelExpanded.v1";
+
+function loadPanelExpanded(): boolean {
+  if (typeof window === "undefined") return true;
+  try {
+    const v = localStorage.getItem(STORAGE_PANEL_EXPANDED);
+    if (v === null) return true;
+    return v === "true";
+  } catch {
+    return true;
+  }
+}
 
 type TFn = (key: string) => string;
 
@@ -48,6 +62,16 @@ export function LocalVideoSubtitlePanel({
   t,
   className,
 }: LocalVideoSubtitlePanelProps) {
+  const [expanded, setExpanded] = useState(() => loadPanelExpanded());
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_PANEL_EXPANDED, expanded ? "true" : "false");
+    } catch {
+      /* ignore */
+    }
+  }, [expanded]);
+
   return (
     <div
       className={cn(
@@ -56,13 +80,30 @@ export function LocalVideoSubtitlePanel({
       )}
     >
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-sm font-semibold text-foreground">{t("localVideo.subStyleTitle")}</h3>
-        <Button type="button" variant="outline" size="sm" className="gap-1.5" onClick={onReset}>
+        <button
+          type="button"
+          onClick={() => setExpanded((e) => !e)}
+          className="flex min-w-0 flex-1 items-center gap-2 rounded-md py-1 pr-2 text-left transition-colors hover:bg-muted/60"
+          aria-expanded={expanded}
+          aria-label={expanded ? t("localVideo.subStyleCollapse") : t("localVideo.subStyleExpand")}
+        >
+          <ChevronDown
+            className={cn(
+              "size-4 shrink-0 text-muted-foreground transition-transform duration-200",
+              expanded ? "rotate-0" : "-rotate-90"
+            )}
+            aria-hidden
+          />
+          <h3 className="text-sm font-semibold text-foreground">{t("localVideo.subStyleTitle")}</h3>
+        </button>
+        <Button type="button" variant="outline" size="sm" className="gap-1.5 shrink-0" onClick={onReset}>
           <RotateCcw className="size-3.5" aria-hidden />
           {t("localVideo.subStyleReset")}
         </Button>
       </div>
 
+      {expanded ? (
+        <>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Field label={t("localVideo.subFontFamily")}>
           <select
@@ -77,6 +118,14 @@ export function LocalVideoSubtitlePanel({
             <option value="serif">{t("localVideo.fontSerif")}</option>
             <option value="mono">{t("localVideo.fontMono")}</option>
             <option value="cjk">{t("localVideo.fontCjk")}</option>
+            <option value="verdana">{t("localVideo.fontVerdana")}</option>
+            <option value="tahoma">{t("localVideo.fontTahoma")}</option>
+            <option value="trebuchet">{t("localVideo.fontTrebuchet")}</option>
+            <option value="georgia">{t("localVideo.fontGeorgia")}</option>
+            <option value="garamond">{t("localVideo.fontGaramond")}</option>
+            <option value="palatino">{t("localVideo.fontPalatino")}</option>
+            <option value="courier">{t("localVideo.fontCourier")}</option>
+            <option value="impact">{t("localVideo.fontImpact")}</option>
           </select>
         </Field>
 
@@ -306,6 +355,8 @@ export function LocalVideoSubtitlePanel({
       </div>
 
       <p className="text-muted-foreground mt-3 text-[11px] leading-snug">{t("localVideo.subStyleNote")}</p>
+        </>
+      ) : null}
     </div>
   );
 }
