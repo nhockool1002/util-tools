@@ -75,6 +75,11 @@ export const toolsSeo: Record<
     description:
       "Tìm nhiều từ khóa trong file hoặc văn bản dán vào; highlight kết quả, xem trước nhanh không cần cài phần mềm.",
   },
+  "/tools/attachment-cleaner": {
+    title: "Attachment Cleaner – Xóa tag đính kèm",
+    description:
+      "Thay toàn bộ chuỗi đính kèm dạng <attached: ...jpg/png/tiff/...> thành [Image Removed] và video thành [Video Removed]. Giao diện 2 cột để kiểm tra trước/sau.",
+  },
   "/tools/screen-recorder": {
     title: "Screen Recorder – Ghi màn hình",
     description:

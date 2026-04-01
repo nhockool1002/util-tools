@@ -3,6 +3,7 @@ import {
   Binary,
   FileCode,
   FileSearch,
+  WandSparkles,
   GitCompare,
   KeyRound,
   Monitor,
@@ -23,6 +24,7 @@ export type MenuItemId =
   | "tlv-decoder"
   | "kcv-calculator"
   | "find-in-file"
+  | "attachment-cleaner"
   | "compare-file"
   | "screen-recorder"
   | "hash-generator"
@@ -90,6 +92,12 @@ export const menuCategories: MenuCategory[] = [
     items: [
       { id: "compare-file", path: "/tools/compare-file", labelKey: "nav.compareFile", icon: GitCompare },
       { id: "find-in-file", path: "/tools/find-in-file", labelKey: "nav.findInFile", icon: FileSearch },
+      {
+        id: "attachment-cleaner",
+        path: "/tools/attachment-cleaner",
+        labelKey: "nav.attachmentCleaner",
+        icon: WandSparkles,
+      },
     ],
   },
   {
