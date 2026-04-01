@@ -97,6 +97,9 @@
     "replaceLeft": "Replace cột trái",
     "replaceRight": "Replace cột phải",
     "rebuildRight": "Làm mới cột phải",
+    "matchCountLeft": "Số lượt match bên trái",
+    "matchCountRight": "Số lượt match bên phải",
+    "replacedResult": "Đã replace",
     "hint": "Pattern ảnh dạng <attached: ...jpg/png/tiff/...> sẽ thành [Image Removed]. Pattern video dạng <attached: ...mp4/mov/...> sẽ thành [Video Removed]."
   },
   "iso8583": {

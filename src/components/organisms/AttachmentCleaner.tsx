@@ -52,6 +52,11 @@ interface KeywordRow {
   color: string;
 }
 
+interface ReplaceResult {
+  text: string;
+  replacedCount: number;
+}
+
 function escapeRegex(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
@@ -70,12 +75,20 @@ function normalizeText(input: string): string {
     .replace(VIDEO_ATTACHED_REGEX, "[Video Removed]");
 }
 
+function countOccurrences(text: string, keyword: string): number {
+  const q = keyword.trim();
+  if (!q) return 0;
+  return text.split(q).length - 1;
+}
+
 export function AttachmentCleaner() {
   const { t } = useLanguage();
   const [leftText, setLeftText] = useState("");
   const [rightText, setRightText] = useState("");
   const [columnRatio, setColumnRatio] = useState(50);
   const [keywords, setKeywords] = useState<KeywordRow[]>([]);
+  const [leftReplaceCount, setLeftReplaceCount] = useState<number | null>(null);
+  const [rightReplaceCount, setRightReplaceCount] = useState<number | null>(null);
   const normalizedLeft = useMemo(() => normalizeText(leftText), [leftText]);
 
   useEffect(() => {
@@ -104,6 +117,8 @@ export function AttachmentCleaner() {
     setLeftText("");
     setRightText("");
     setKeywords([]);
+    setLeftReplaceCount(null);
+    setRightReplaceCount(null);
   };
 
   const pasteToLeft = async () => {
@@ -115,12 +130,34 @@ export function AttachmentCleaner() {
     await navigator.clipboard.writeText(text);
   };
 
-  const runReplace = (source: string): string => {
-    return keywords.reduce((result, row) => {
+  const leftMatchCount = useMemo(
+    () =>
+      keywords.reduce(
+        (sum, row) => sum + countOccurrences(leftText, row.text),
+        0
+      ),
+    [keywords, leftText]
+  );
+
+  const rightMatchCount = useMemo(
+    () =>
+      keywords.reduce(
+        (sum, row) => sum + countOccurrences(rightText, row.text),
+        0
+      ),
+    [keywords, rightText]
+  );
+
+  const runReplace = (source: string): ReplaceResult => {
+    return keywords.reduce<ReplaceResult>((acc, row) => {
       const find = row.text.trim();
-      if (!find) return result;
-      return result.replaceAll(find, row.replace);
-    }, source);
+      if (!find) return acc;
+      const count = countOccurrences(acc.text, find);
+      return {
+        text: acc.text.replaceAll(find, row.replace),
+        replacedCount: acc.replacedCount + count,
+      };
+    }, { text: source, replacedCount: 0 });
   };
 
   return (
@@ -191,32 +228,48 @@ export function AttachmentCleaner() {
           <label className="text-sm font-medium text-foreground">
             {t("attachmentCleaner.leftTitle")}
           </label>
+          <div className="text-xs text-muted-foreground">
+            {t("attachmentCleaner.matchCountLeft")}: {leftMatchCount}
+          </div>
           <textarea
             value={leftText}
             onChange={(e) => setLeftText(e.target.value)}
             placeholder={t("attachmentCleaner.leftPlaceholder")}
             className={cn(
-              "min-h-[220px] w-full resize-y rounded-lg border border-input bg-background px-3 py-2 text-sm",
+              "min-h-[320px] w-full resize-y rounded-lg border border-input bg-background px-3 py-2 text-sm",
               "placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             )}
             spellCheck={false}
           />
+          {leftReplaceCount !== null && (
+            <p className="text-xs text-muted-foreground">
+              {t("attachmentCleaner.replacedResult")}: {leftReplaceCount}
+            </p>
+          )}
         </div>
 
         <div className="flex flex-col gap-2">
           <label className="text-sm font-medium text-foreground">
             {t("attachmentCleaner.rightTitle")}
           </label>
+          <div className="text-xs text-muted-foreground">
+            {t("attachmentCleaner.matchCountRight")}: {rightMatchCount}
+          </div>
           <textarea
             value={rightText}
             onChange={(e) => setRightText(e.target.value)}
             placeholder={t("attachmentCleaner.rightPlaceholder")}
             className={cn(
-              "min-h-[220px] w-full resize-y rounded-lg border border-input bg-background px-3 py-2 text-sm",
+              "min-h-[320px] w-full resize-y rounded-lg border border-input bg-background px-3 py-2 text-sm",
               "placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             )}
             spellCheck={false}
           />
+          {rightReplaceCount !== null && (
+            <p className="text-xs text-muted-foreground">
+              {t("attachmentCleaner.replacedResult")}: {rightReplaceCount}
+            </p>
+          )}
         </div>
       </div>
 
@@ -230,7 +283,13 @@ export function AttachmentCleaner() {
               type="button"
               variant="outline"
               size="sm"
-              onClick={() => setLeftText((prev) => runReplace(prev))}
+              onClick={() =>
+                setLeftText((prev) => {
+                  const result = runReplace(prev);
+                  setLeftReplaceCount(result.replacedCount);
+                  return result.text;
+                })
+              }
             >
               {t("attachmentCleaner.replaceLeft")}
             </Button>
@@ -238,7 +297,13 @@ export function AttachmentCleaner() {
               type="button"
               variant="outline"
               size="sm"
-              onClick={() => setRightText((prev) => runReplace(prev))}
+              onClick={() =>
+                setRightText((prev) => {
+                  const result = runReplace(prev);
+                  setRightReplaceCount(result.replacedCount);
+                  return result.text;
+                })
+              }
             >
               {t("attachmentCleaner.replaceRight")}
             </Button>
@@ -253,6 +318,7 @@ export function AttachmentCleaner() {
             <li
               key={k.id}
               className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-card p-2"
+              style={{ borderLeftWidth: 4, borderLeftColor: k.color }}
             >
               <Input
                 value={k.text}

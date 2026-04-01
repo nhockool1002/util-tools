@@ -97,6 +97,9 @@
     "replaceLeft": "Replace left",
     "replaceRight": "Replace right",
     "rebuildRight": "Rebuild right",
+    "matchCountLeft": "Left matches",
+    "matchCountRight": "Right matches",
+    "replacedResult": "Replaced",
     "hint": "Image patterns like <attached: ...jpg/png/tiff/...> become [Image Removed]. Video patterns like <attached: ...mp4/mov/...> become [Video Removed]."
   },
   "iso8583": {
