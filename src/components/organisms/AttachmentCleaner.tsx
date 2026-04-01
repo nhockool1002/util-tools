@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/contexts/language-context";
-import { getHighlightSegments, type KeywordHighlight } from "@/lib/highlight";
 import { cn } from "@/lib/utils";
 import { ClipboardPaste, Copy, Eraser, Plus, RefreshCw, Trash2 } from "lucide-react";
 
@@ -71,47 +70,6 @@ function normalizeText(input: string): string {
     .replace(VIDEO_ATTACHED_REGEX, "[Video Removed]");
 }
 
-function HighlightPreview({
-  value,
-  highlights,
-  emptyText,
-}: {
-  value: string;
-  highlights: KeywordHighlight[];
-  emptyText: string;
-}) {
-  const segments = useMemo(
-    () => getHighlightSegments(value, highlights),
-    [value, highlights]
-  );
-
-  if (!value) {
-    return <span className="text-muted-foreground">{emptyText}</span>;
-  }
-
-  return (
-    <>
-      {segments.map((seg, i) =>
-        seg.type === "text" ? (
-          <span key={i}>{seg.content}</span>
-        ) : (
-          <span
-            key={i}
-            style={{
-              backgroundColor: seg.color,
-              color: "inherit",
-              padding: "0 1px",
-              borderRadius: "2px",
-            }}
-          >
-            {seg.content}
-          </span>
-        )
-      )}
-    </>
-  );
-}
-
 export function AttachmentCleaner() {
   const { t } = useLanguage();
   const [leftText, setLeftText] = useState("");
@@ -123,14 +81,6 @@ export function AttachmentCleaner() {
   useEffect(() => {
     setRightText(normalizedLeft);
   }, [normalizedLeft]);
-
-  const activeHighlights: KeywordHighlight[] = useMemo(
-    () =>
-      keywords
-        .filter((k) => k.text.trim() !== "")
-        .map((k) => ({ text: k.text.trim(), color: k.color })),
-    [keywords]
-  );
 
   const addKeyword = () => {
     const color = DEFAULT_COLORS[keywords.length % DEFAULT_COLORS.length];
@@ -251,13 +201,6 @@ export function AttachmentCleaner() {
             )}
             spellCheck={false}
           />
-          <div className="min-h-[120px] rounded-lg border border-border bg-muted/30 px-3 py-2 font-mono text-sm whitespace-pre-wrap break-words">
-            <HighlightPreview
-              value={leftText}
-              highlights={activeHighlights}
-              emptyText={t("attachmentCleaner.emptyPreview")}
-            />
-          </div>
         </div>
 
         <div className="flex flex-col gap-2">
@@ -274,13 +217,6 @@ export function AttachmentCleaner() {
             )}
             spellCheck={false}
           />
-          <div className="min-h-[120px] rounded-lg border border-border bg-muted/30 px-3 py-2 font-mono text-sm whitespace-pre-wrap break-words">
-            <HighlightPreview
-              value={rightText}
-              highlights={activeHighlights}
-              emptyText={t("attachmentCleaner.emptyPreview")}
-            />
-          </div>
         </div>
       </div>
 
