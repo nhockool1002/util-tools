@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/contexts/language-context";
+import { getHighlightSegments, type KeywordHighlight } from "@/lib/highlight";
 import { cn } from "@/lib/utils";
 import { ClipboardPaste, Copy, Eraser, Plus, RefreshCw, Trash2 } from "lucide-react";
 
@@ -57,6 +58,67 @@ interface ReplaceResult {
   replacedCount: number;
 }
 
+function HighlightTextarea({
+  value,
+  onChange,
+  placeholder,
+  highlights,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+  highlights: KeywordHighlight[];
+}) {
+  const segments = useMemo(
+    () => getHighlightSegments(value, highlights),
+    [value, highlights]
+  );
+
+  return (
+    <div className="relative min-h-[320px] w-full rounded-lg border border-input bg-background">
+      <div
+        aria-hidden
+        className={cn(
+          "absolute inset-0 overflow-auto px-3 py-2 text-sm whitespace-pre-wrap break-words pointer-events-none",
+          "text-foreground"
+        )}
+      >
+        {value ? (
+          segments.map((seg, i) =>
+            seg.type === "text" ? (
+              <span key={i}>{seg.content}</span>
+            ) : (
+              <span
+                key={i}
+                style={{
+                  backgroundColor: seg.color,
+                  color: "inherit",
+                  borderRadius: "2px",
+                  padding: "0 1px",
+                }}
+              >
+                {seg.content}
+              </span>
+            )
+          )
+        ) : (
+          <span className="text-muted-foreground">{placeholder}</span>
+        )}
+      </div>
+      <textarea
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className={cn(
+          "relative z-10 min-h-[320px] w-full resize-y rounded-lg bg-transparent px-3 py-2 text-sm",
+          "text-transparent caret-foreground placeholder:text-transparent focus:outline-none focus:ring-2 focus:ring-ring"
+        )}
+        spellCheck={false}
+      />
+    </div>
+  );
+}
+
 function escapeRegex(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
@@ -90,6 +152,13 @@ export function AttachmentCleaner() {
   const [leftReplaceCount, setLeftReplaceCount] = useState<number | null>(null);
   const [rightReplaceCount, setRightReplaceCount] = useState<number | null>(null);
   const normalizedLeft = useMemo(() => normalizeText(leftText), [leftText]);
+  const activeHighlights: KeywordHighlight[] = useMemo(
+    () =>
+      keywords
+        .filter((k) => k.text.trim() !== "")
+        .map((k) => ({ text: k.text.trim(), color: k.color })),
+    [keywords]
+  );
 
   useEffect(() => {
     setRightText(normalizedLeft);
@@ -231,15 +300,11 @@ export function AttachmentCleaner() {
           <div className="text-xs text-muted-foreground">
             {t("attachmentCleaner.matchCountLeft")}: {leftMatchCount}
           </div>
-          <textarea
+          <HighlightTextarea
             value={leftText}
-            onChange={(e) => setLeftText(e.target.value)}
+            onChange={setLeftText}
             placeholder={t("attachmentCleaner.leftPlaceholder")}
-            className={cn(
-              "min-h-[320px] w-full resize-y rounded-lg border border-input bg-background px-3 py-2 text-sm",
-              "placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-            )}
-            spellCheck={false}
+            highlights={activeHighlights}
           />
           {leftReplaceCount !== null && (
             <p className="text-xs text-muted-foreground">
@@ -255,15 +320,11 @@ export function AttachmentCleaner() {
           <div className="text-xs text-muted-foreground">
             {t("attachmentCleaner.matchCountRight")}: {rightMatchCount}
           </div>
-          <textarea
+          <HighlightTextarea
             value={rightText}
-            onChange={(e) => setRightText(e.target.value)}
+            onChange={setRightText}
             placeholder={t("attachmentCleaner.rightPlaceholder")}
-            className={cn(
-              "min-h-[320px] w-full resize-y rounded-lg border border-input bg-background px-3 py-2 text-sm",
-              "placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-            )}
-            spellCheck={false}
+            highlights={activeHighlights}
           />
           {rightReplaceCount !== null && (
             <p className="text-xs text-muted-foreground">
