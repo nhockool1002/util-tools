@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/contexts/language-context";
 import { getHighlightSegments, type KeywordHighlight } from "@/lib/highlight";
 import { cn } from "@/lib/utils";
-import { Copy, Eraser, Paste, Plus, RefreshCw, Trash2 } from "lucide-react";
+import { ClipboardPaste, Copy, Eraser, Plus, RefreshCw, Trash2 } from "lucide-react";
 
 const IMAGE_EXTENSIONS = [
   "jpg",
@@ -177,7 +177,7 @@ export function AttachmentCleaner() {
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-center gap-2">
         <Button type="button" variant="outline" size="sm" onClick={pasteToLeft}>
-          <Paste className="size-4 shrink-0" />
+          <ClipboardPaste className="size-4 shrink-0" />
           {t("attachmentCleaner.pasteLeft")}
         </Button>
         <Button
