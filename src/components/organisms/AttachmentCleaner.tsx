@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Editor from "react-simple-code-editor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/contexts/language-context";
@@ -69,51 +70,44 @@ function HighlightTextarea({
   placeholder: string;
   highlights: KeywordHighlight[];
 }) {
-  const segments = useMemo(
-    () => getHighlightSegments(value, highlights),
-    [value, highlights]
-  );
+  const highlightedHtml = useMemo(() => {
+    const segments = getHighlightSegments(value, highlights);
+    return segments
+      .map((seg) => {
+        const safeContent = seg.content
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+        if (seg.type === "text") return safeContent;
+        return `<span style="background-color:${seg.color};border-radius:2px;padding:0 1px;">${safeContent}</span>`;
+      })
+      .join("");
+  }, [value, highlights]);
 
   return (
-    <div className="relative min-h-[320px] w-full rounded-lg border border-input bg-background">
-      <div
-        aria-hidden
-        className={cn(
-          "absolute inset-0 overflow-auto px-3 py-2 text-sm whitespace-pre-wrap break-words pointer-events-none",
-          "text-foreground"
-        )}
-      >
-        {value ? (
-          segments.map((seg, i) =>
-            seg.type === "text" ? (
-              <span key={i}>{seg.content}</span>
-            ) : (
-              <span
-                key={i}
-                style={{
-                  backgroundColor: seg.color,
-                  color: "inherit",
-                  borderRadius: "2px",
-                  padding: "0 1px",
-                }}
-              >
-                {seg.content}
-              </span>
-            )
-          )
-        ) : (
-          <span className="text-muted-foreground">{placeholder}</span>
-        )}
-      </div>
-      <textarea
+    <div className="relative min-h-[360px] w-full overflow-hidden rounded-lg border border-input bg-background">
+      {!value && (
+        <span className="pointer-events-none absolute left-3 top-2 z-10 text-sm text-muted-foreground">
+          {placeholder}
+        </span>
+      )}
+      <Editor
         value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        className={cn(
-          "relative z-10 min-h-[320px] w-full resize-y rounded-lg bg-transparent px-3 py-2 text-sm",
-          "text-transparent caret-foreground placeholder:text-transparent focus:outline-none focus:ring-2 focus:ring-ring"
+        onValueChange={onChange}
+        highlight={() => highlightedHtml}
+        padding={10}
+        textareaClassName={cn(
+          "min-h-[360px] w-full text-sm outline-none focus:ring-2 focus:ring-ring",
+          "font-mono"
         )}
-        spellCheck={false}
+        preClassName="min-h-[360px] w-full text-sm font-mono"
+        style={{
+          fontFamily:
+            "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace",
+          whiteSpace: "pre-wrap",
+          wordBreak: "break-word",
+          overflow: "auto",
+        }}
       />
     </div>
   );
