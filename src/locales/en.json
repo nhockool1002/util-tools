@@ -24,7 +24,8 @@
     "regexTester": "Regex Tester",
     "colorPalettes": "Color Palettes",
     "responsiveTest": "Responsive Test",
-    "localVideo": "Local Video Player"
+    "localVideo": "Local Video Player",
+    "imageBlur": "Image blur / redact"
   },
   "font": {
     "default": "Default",
@@ -453,5 +454,24 @@
       "bottom-center": "Bottom center",
       "bottom-right": "Bottom right"
     }
+  },
+  "imageBlur": {
+    "intro": "After you pick a mode (or draw the first region), you cannot switch modes until «Finish session», download PNG, or pick another image. All processing stays in your browser.",
+    "chooseImage": "Choose image",
+    "dropHint": "Drop an image here or click to browse",
+    "modeBlur": "Blur",
+    "modeSolid": "Solid cover",
+    "modeMosaic": "Mosaic pixelation",
+    "mosaicBlock": "Mosaic cell size",
+    "blurStrength": "Blur strength",
+    "solidColor": "Cover color",
+    "clearRegions": "Clear regions",
+    "resetImage": "Use another image",
+    "finishSession": "Finish session (unlock mode)",
+    "modeLockedHint": "Mode is locked. Use «Finish session», download PNG, or change image to pick again.",
+    "exportPng": "Download result (PNG)",
+    "drawHint": "Click and drag on the image to draw a rectangle. Repeat for each area.",
+    "regions": "Regions:",
+    "removeRegion": "Remove region {{n}}"
   }
 }

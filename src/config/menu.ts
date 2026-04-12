@@ -17,6 +17,7 @@ import {
   Palette,
   Smartphone,
   Clapperboard,
+  EyeOff,
 } from "lucide-react";
 
 export type MenuItemId =
@@ -36,7 +37,8 @@ export type MenuItemId =
   | "regex-tester"
   | "convert-case"
   | "responsive-test"
-  | "local-video";
+  | "local-video"
+  | "image-blur";
 
 export interface MenuItem {
   id: MenuItemId;
@@ -106,6 +108,7 @@ export const menuCategories: MenuCategory[] = [
     items: [
       { id: "screen-recorder", path: "/tools/screen-recorder", labelKey: "nav.screenRecorder", icon: Monitor },
       { id: "local-video", path: "/tools/local-video", labelKey: "nav.localVideo", icon: Clapperboard },
+      { id: "image-blur", path: "/tools/image-blur", labelKey: "nav.imageBlur", icon: EyeOff },
     ],
   },
 ];

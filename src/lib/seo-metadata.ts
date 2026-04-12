@@ -51,6 +51,7 @@ export function buildHomeJsonLd(): object {
     "/tools/find-in-file",
     "/tools/screen-recorder",
     "/tools/local-video",
+    "/tools/image-blur",
   ];
 
   return {

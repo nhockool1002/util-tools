@@ -24,7 +24,8 @@
     "regexTester": "Regex Tester",
     "colorPalettes": "Bảng màu",
     "responsiveTest": "Responsive Test",
-    "localVideo": "Phát video local"
+    "localVideo": "Phát video local",
+    "imageBlur": "Blur / Che ảnh"
   },
   "font": {
     "default": "Mặc định",
@@ -453,5 +454,24 @@
       "bottom-center": "Dưới giữa",
       "bottom-right": "Dưới phải"
     }
+  },
+  "imageBlur": {
+    "intro": "Sau khi chọn chế độ (hoặc vẽ vùng đầu tiên), không đổi sang chế độ khác cho đến khi bấm «Hoàn thành phiên», tải ảnh PNG, hoặc đổi ảnh khác. Ảnh chỉ xử lý trên máy bạn.",
+    "chooseImage": "Chọn ảnh",
+    "dropHint": "Kéo thả ảnh vào đây hoặc bấm để chọn",
+    "modeBlur": "Làm mờ (blur)",
+    "modeSolid": "Che màu",
+    "modeMosaic": "Mosaic (che pixel)",
+    "mosaicBlock": "Cỡ ô mosaic",
+    "blurStrength": "Độ mờ",
+    "solidColor": "Màu che",
+    "clearRegions": "Xóa các vùng",
+    "resetImage": "Đổi ảnh khác",
+    "finishSession": "Hoàn thành phiên (đổi chế độ)",
+    "modeLockedHint": "Đã khóa chế độ. Dùng «Hoàn thành phiên», tải PNG, hoặc đổi ảnh để chọn lại.",
+    "exportPng": "Tải ảnh đã xử lý (PNG)",
+    "drawHint": "Kéo thả trên ảnh để chọn hình chữ nhật. Lặp lại cho từng vùng.",
+    "regions": "Vùng đã chọn:",
+    "removeRegion": "Xóa vùng {{n}}"
   }
 }

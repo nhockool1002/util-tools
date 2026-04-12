@@ -90,4 +90,9 @@ export const toolsSeo: Record<
     description:
       "Chọn file video MP4 và phụ đề SRT/VTT trên máy để xem trong trình duyệt. Không upload server, tối ưu bộ nhớ với blob URL và preload metadata.",
   },
+  "/tools/image-blur": {
+    title: "Blur / Che vùng ảnh",
+    description:
+      "Làm mờ hoặc che bằng màu các vùng chọn trên ảnh: kéo chọn nhiều vùng, xuất PNG. Xử lý hoàn toàn trên trình duyệt, không tải ảnh lên server.",
+  },
 };
