@@ -20,6 +20,7 @@
     "qrCode": "QR Code",
     "base64": "Base64 Encode/Decode",
     "convertCase": "Convert Case",
+    "countChar": "Count Char",
     "fontConverter": "Đổi font",
     "regexTester": "Regex Tester",
     "colorPalettes": "Bảng màu",
@@ -359,6 +360,18 @@
       "sortLinesDesc": "Sắp xếp dòng Z→A",
       "uniqueLines": "Loại bỏ dòng trùng"
     }
+  },
+  "countChar": {
+    "characters": "Characters",
+    "nonBlankCharacters": "Non blank characters",
+    "words": "Words",
+    "spaces": "Spaces",
+    "sentences": "Sentences",
+    "lines": "Lines",
+    "notEmptyLines": "Not empty lines",
+    "pages": "Pages",
+    "inputPlaceholder": "Dán hoặc nhập nội dung để đếm ký tự...",
+    "clear": "Xóa"
   },
   "colorPalettes": {
     "title": "Bảng màu",

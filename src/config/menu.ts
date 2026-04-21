@@ -1,5 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 import {
+  AlignLeft,
   Binary,
   FileCode,
   FileSearch,
@@ -36,6 +37,7 @@ export type MenuItemId =
   | "color-palettes"
   | "regex-tester"
   | "convert-case"
+  | "count-char"
   | "responsive-test"
   | "local-video"
   | "image-blur";
@@ -70,6 +72,7 @@ export const menuCategories: MenuCategory[] = [
       { id: "base64", path: "/tools/base64", labelKey: "nav.base64", icon: FileText },
       { id: "color-palettes", path: "/tools/color-palettes", labelKey: "nav.colorPalettes", icon: Palette },
       { id: "convert-case", path: "/tools/convert-case", labelKey: "nav.convertCase", icon: CaseSensitive },
+      { id: "count-char", path: "/tools/count-char", labelKey: "nav.countChar", icon: AlignLeft },
       {
         id: "font-converter",
         path: "/tools/font-converter",

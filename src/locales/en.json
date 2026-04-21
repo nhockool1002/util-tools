@@ -20,6 +20,7 @@
     "qrCode": "QR Code",
     "base64": "Base64 Encode/Decode",
     "convertCase": "Convert Case",
+    "countChar": "Count Char",
     "fontConverter": "Font Converter",
     "regexTester": "Regex Tester",
     "colorPalettes": "Color Palettes",
@@ -359,6 +360,18 @@
       "sortLinesDesc": "Sort lines Z→A",
       "uniqueLines": "Unique lines"
     }
+  },
+  "countChar": {
+    "characters": "Characters",
+    "nonBlankCharacters": "Non blank characters",
+    "words": "Words",
+    "spaces": "Spaces",
+    "sentences": "Sentences",
+    "lines": "Lines",
+    "notEmptyLines": "Not empty lines",
+    "pages": "Pages",
+    "inputPlaceholder": "Paste or type content to count...",
+    "clear": "Clear"
   },
   "colorPalettes": {
     "title": "Color Palettes",

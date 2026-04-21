@@ -35,6 +35,11 @@ export const toolsSeo: Record<
     description:
       "Đổi chữ hoa, chữ thường, Title Case, camelCase, snake_case và nhiều định dạng khác cho văn bản và mã nguồn.",
   },
+  "/tools/count-char": {
+    title: "Count Character – Đếm ký tự và từ",
+    description:
+      "Thống kê nhanh số ký tự, ký tự không khoảng trắng, từ, số câu, dòng và số trang ước lượng từ văn bản đầu vào.",
+  },
   "/tools/font-converter": {
     title: "Font Converter – Đổi định dạng font",
     description:
